@@ -2,33 +2,40 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 var intervalId;
-var timerDelay = 16.67;
+var timerDelay = 16.67;   //60 fps
 
-var mooseState = 0;
-setInterval(function() {
-  mooseState = (mooseState + 1) % 3;
-}, 100);
-var moose = new Image();
-moose.src = 'sprites/moose_walk.png';
-var mooseX = 0;
-var mooseY = 0;
+var moose = new sprite('sprites/moose_walk.png', ["down", 0], 0, 0);
+moose.coords = new Object();
+//TODO refactor this ugly shit
+moose.coords[["down", 0]] = {"x":25, "y":29, "w":14, "h":34};
+moose.coords[["down", 1]] = {"x":89, "y":28, "w":14, "h":34};
+moose.coords[["down", 2]] = {"x":153, "y":29, "w":14, "h":34};
 
+moose.coords[["right", 0]] = {"x":13, "y":163, "w":43, "h":28};
+moose.coords[["right", 1]] = {"x":78, "y":161, "w":42, "h":30};
+moose.coords[["right", 2]] = {"x":141, "y":162, "w":43, "h":29};
+
+moose.coords[["left", 0]] = {"x":9, "y":98, "w":43, "h":29};
+moose.coords[["left", 1]] = {"x":73, "y":97, "w":42, "h":30};
+moose.coords[["left", 2]] = {"x":137, "y":99, "w":43, "h":28};
+
+moose.coords[["up", 0]] = {"x":25, "y":223, "w":14, "h":33};
+moose.coords[["up", 1]] = {"x":89, "y":223, "w":14, "h":31};
+moose.coords[["up", 2]] = {"x":153, "y":224, "w":14, "h":32};
+
+function sprite(src, state, x, y) {
+  this.image = new Image();
+  this.image.src = src;
+  this.state = state;
+  this.x = x;
+  this.y = y
+}
 
 function drawMoose() {
-  switch(mooseState) {
-    case 0:
-      //(sprite, srcX, srcY, srcW, srcH, destX, destY, destW, destH)
-      ctx.drawImage(moose, 25, 29, 14, 34, mooseX, mooseY, 14, 34);
-      break;
-    case 1:
-      ctx.drawImage(moose, 89, 28, 14, 34, mooseX, mooseY, 14, 34);
-      break;
-    case 2:
-      ctx.drawImage(moose, 153, 29, 14, 34, mooseX, mooseY, 14, 34);
-      break;
-    default:
-      break;
-  }
+  var coords = moose.coords[moose.state];
+  //(sprite, srcx, srcy, srcw, srch, destx, desty, destw, desth)
+  ctx.drawImage(moose.image, coords.x, coords.y, coords.w, coords.h,
+                moose.x, moose.y, coords.w, coords.h);
 }
 
 function redrawAll() {
@@ -49,16 +56,24 @@ function onKeyDown(event) {
   var yOffset = 10;
   switch(event.keyCode) {
     case wCode:
-      mooseY -= yOffset;
+      moose.y -= yOffset;
+      moose.state[0] = "up";
+      moose.state[1] = (moose.state[1] + 1) % 3;
       break;
     case aCode:
-      mooseX -= xOffset;
+      moose.x -= xOffset;
+      moose.state[0] = "left";
+      moose.state[1] = (moose.state[1] + 1) % 3;
       break;
     case sCode:
-      mooseY += yOffset;
+      moose.y += yOffset;
+      moose.state[0] = "down";
+      moose.state[1] = (moose.state[1] + 1) % 3;
       break;
     case dCode:
-      mooseX += xOffset;
+      moose.x += xOffset;
+      moose.state[0] = "right";
+      moose.state[1] = (moose.state[1] + 1) % 3;
       break;
     default:
       break;
