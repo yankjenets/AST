@@ -14,6 +14,13 @@ var timerDelay = 16.67;   //60 fps
 var moose = new Sprite("sprites/moose_walk.png", "down", 0, 0, 0, mooseCoords);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
                            policeCoords);
+var sirenBar = new Object();
+sirenBar.x = 0;
+sirenBar.y = 0;
+sirenBar.h = 25;
+sirenBar.max = 300;
+sirenBar.percent = 1;
+sirenBar.fillStyle = "red";
 
 function Sprite(src, state, frame, x, y, coords) {
   this.image = new Image();
@@ -32,16 +39,38 @@ function draw(sprite) {
                 sprite.x, sprite.y, coords.w, coords.h);
 }
 
+function drawSirenBar() {
+  ctx.strokeStyle = "black";
+  ctx.strokeRect(sirenBar.x, sirenBar.y, sirenBar.max,
+               sirenBar.h);
+  ctx.fillStyle = sirenBar.fillStyle;
+  ctx.fillRect(sirenBar.x, sirenBar.y, sirenBar.max * sirenBar.percent,
+               sirenBar.h);
+}
+
 function redrawAll() {
   ctx.clearRect(0, 0, 400, 400);
   //draw(moose);
+  drawSirenBar();
   draw(policeCar);
 }
 
 function onTimer() {
-  console.log(policeCar.state);
-  var xOffset = 4;
-  var yOffset = 4;
+  var xOffset;
+  var yOffset;
+  if(policeCar.state == "on") {
+    if(sirenBar.percent > 0) {
+      sirenBar.percent -= 0.01;
+    }
+    xOffset = 6;
+    yOffset = 6;
+  } else {
+    if(sirenBar.percent < 1) {
+      sirenBar.percent += 0.01;
+    }
+    xOffset = 4;
+    yOffset = 4;
+  }
   if(keys[wCode]) {
     policeCar.y -= yOffset;
   }
