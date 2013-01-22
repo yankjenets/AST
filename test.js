@@ -25,7 +25,8 @@ moose.coords[["up", 2]] = {"x":153, "y":224, "w":14, "h":32};
 
 
 //Start collision box
-var car = new collision_box(200, 200, 0, 0);
+var car = new collision_box(20, 20, 20, 50);
+var police_car = new collision_box(20, 20, 10, 50);
 
 function collision_box(width, height, x, y) { 
     this.width = width;
@@ -35,14 +36,14 @@ function collision_box(width, height, x, y) {
 }
 
 function clboxIntersect(cl1, cl2) {
-    return (cl1.x < cl2.x+cl2.width || cl1.x+width > cl2.x ||
-        cl1.y < cl2.y+cl2.height || cl2.y < cl1.y+height);
+    return !(cl1.x > cl2.x+cl2.width || cl1.x+cl1.width < cl2.x ||
+        cl1.y > cl2.y+cl2.height || cl1.y+cl1.height < cl2.y);
 }
 
 
 function drawClbox(box) { 
     ctx.strokestyle = "red";
-    ctx.strokeRect(box.width, box.height, box.x, box.y);
+    ctx.strokeRect( box.x, box.y, box.width, box.height);
 }
 
     
@@ -65,10 +66,17 @@ function redrawAll() {
   ctx.clearRect(0, 0, 400, 400);
   drawMoose();
   drawClbox(car);
+  drawClbox(police_car);
+}
+
+function check_collisions(){
+    //TODO loop police car through all boxes. 
+    console.log(clboxIntersect(car, police_car));
 }
 
 function onTimer() {
   redrawAll();
+  check_collisions();
 }
 
 function onKeyDown(event) {
