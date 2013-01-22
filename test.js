@@ -23,6 +23,29 @@ moose.coords[["up", 0]] = {"x":25, "y":223, "w":14, "h":33};
 moose.coords[["up", 1]] = {"x":89, "y":223, "w":14, "h":31};
 moose.coords[["up", 2]] = {"x":153, "y":224, "w":14, "h":32};
 
+
+//Start collision box
+var car = new collision_box(200, 200, 0, 0);
+
+function collision_box(width, height, x, y) { 
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+}
+
+function clboxIntersect(cl1, cl2) {
+    return (cl1.x < cl2.x+cl2.width || cl1.x+width > cl2.x ||
+        cl1.y < cl2.y+cl2.height || cl2.y < cl1.y+height);
+}
+
+
+function drawClbox(box) { 
+    ctx.strokestyle = "red";
+    ctx.strokeRect(box.width, box.height, box.x, box.y);
+}
+
+    
 function sprite(src, state, x, y) {
   this.image = new Image();
   this.image.src = src;
@@ -41,6 +64,7 @@ function drawMoose() {
 function redrawAll() {
   ctx.clearRect(0, 0, 400, 400);
   drawMoose();
+  drawClbox(car);
 }
 
 function onTimer() {
