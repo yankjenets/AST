@@ -3,8 +3,10 @@ var ctx = canvas.getContext("2d");
 
 var intervalId;
 var timerDelay = 16.67;   //60 fps
+var delta = 3;
 
 var moose = new sprite('sprites/moose_walk.png', ["down", 0], 0, 0);
+var roadLines = new RoadLines(6);
 moose.coords = new Object();
 //TODO refactor this ugly shit
 moose.coords[["down", 0]] = {"x":25, "y":29, "w":14, "h":34};
@@ -28,7 +30,51 @@ function sprite(src, state, x, y) {
   this.image.src = src;
   this.state = state;
   this.x = x;
-  this.y = y
+  this.y = y;
+}
+
+function RoadLines(numLines) {
+  this.lines = new Array(2 * numLines);
+  
+  for (var i = 0; i < 2 * numLines; i++) {
+    this.lines[i] = new Line(185, -600 + (100*i));
+  }
+  
+  this.update = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].update(delta);
+    }
+  };
+  
+  this.drawLines = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].drawLine();
+    }
+  };
+}
+
+function Line(x, y) {
+  this.startx = x;
+  this.starty = y;
+  this.livex = x;
+  this.livey = y;
+  this.state = 0;
+  
+  this.update = function(delta) {
+    if (this.state === 99) {
+      this.state = 0;
+    } else {
+      this.state++;
+    }
+    
+    this.livex = this.startx;
+    this.livey = this.starty + (this.state * delta);
+  };
+  
+  this.drawLine = function() {
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(this.livex, this.livey, 30, 50);
+  }
 }
 
 function drawMoose() {
@@ -38,8 +84,16 @@ function drawMoose() {
                 moose.x, moose.y, coords.w, coords.h);
 }
 
+function drawRoad() {
+  ctx.fillStyle = "grey";
+  ctx.fillRect(25, 0, 350, 600)
+}
+
 function redrawAll() {
-  ctx.clearRect(0, 0, 400, 400);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawRoad();
+  roadLines.update();
+  roadLines.drawLines();
   drawMoose();
 }
 
