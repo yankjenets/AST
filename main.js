@@ -1,6 +1,13 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
+var keys = new Object();
+var wCode = 87;
+var aCode = 65;
+var sCode = 83;
+var dCode = 68;
+var spaceCode = 32;
+
 var intervalId;
 var timerDelay = 16.67;   //60 fps
 
@@ -27,45 +34,50 @@ function draw(sprite) {
 
 function redrawAll() {
   ctx.clearRect(0, 0, 400, 400);
-  draw(moose);
+  //draw(moose);
   draw(policeCar);
 }
 
 function onTimer() {
+  console.log(policeCar.state);
+  var xOffset = 4;
+  var yOffset = 4;
+  if(keys[wCode]) {
+    policeCar.y -= yOffset;
+  }
+  if(keys[aCode]) {
+    policeCar.x -= xOffset;
+  }
+  if(keys[sCode]) {
+    policeCar.y += yOffset;
+  }
+  if(keys[dCode]) {
+    policeCar.x += xOffset;
+  }
+  if(keys[spaceCode]) {
+    policeCar.state = "on";
+    policeCar.frame = (policeCar.frame + 1) % 8;
+  } else {
+    policeCar.state = "off";
+    policeCar.frame = 0;
+  }
+
   redrawAll();
 }
 
 function onKeyDown(event) {
-  var wCode = 87;
-  var aCode = 65;
-  var sCode = 83;
-  var dCode = 68;
-  var xOffset = 10;
-  var yOffset = 10;
-  switch(event.keyCode) {
-    case wCode:
-      policeCar.y -= yOffset;
-      policeCar.frame = (policeCar.frame + 1) % 1;
-      break;
-    case aCode:
-      policeCar.x -= xOffset;
-      policeCar.frame = (policeCar.frame + 1) % 1;
-      break;
-    case sCode:
-      policeCar.y += yOffset;
-      policeCar.frame = (policeCar.frame + 1) % 1;
-      break;
-    case dCode:
-      policeCar.x += xOffset;
-      policeCar.frame = (policeCar.frame + 1) % 1;
-      break;
-    default:
-      break;
-  }
+  var code = event.keyCode;
+  keys[code] = 1;
+}
+
+function onKeyUp(event) {
+  var code = event.keyCode;
+  keys[code] = 0;
 }
 
 function run() {
   canvas.addEventListener('keydown', onKeyDown, false);
+  canvas.addEventListener('keyup', onKeyUp, false);
   canvas.setAttribute('tabindex', '0');
   canvas.focus();
   intervalId = setInterval(onTimer, timerDelay);
