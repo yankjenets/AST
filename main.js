@@ -11,6 +11,9 @@ var spaceCode = 32;
 var intervalId;
 var timerDelay = 16.67;   //60 fps
 
+var delta = 1;
+
+var roadLines = new RoadLines(6);
 var moose = new Sprite("sprites/moose_walk.png", "down", 0, 0, 0, mooseCoords);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
                            policeCoords);
@@ -32,6 +35,56 @@ function Sprite(src, state, frame, x, y, coords) {
   this.coords = coords;
 }
 
+////////////////////////////////////
+/** Scrolling background objects **/
+////////////////////////////////////
+
+function RoadLines(numLines) {
+  this.lines = new Array(2 * numLines);
+  
+  for (var i = 0; i < 2 * numLines; i++) {
+    this.lines[i] = new Line(185, -600 + (100*i));
+  }
+  
+  this.update = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].update(delta);
+    }
+  };
+  
+  this.drawLines = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].drawLine();
+    }
+  };
+}
+
+function Line(x, y) {
+  this.startx = x;
+  this.starty = y;
+  this.livex = x;
+  this.livey = y;
+  this.state = 0;
+  
+  this.update = function(delta) {
+    if (this.state === 99) {
+      this.state = 0;
+    } else {
+      this.state++;
+    }
+    
+    this.livex = this.startx;
+    this.livey = this.starty + (this.state * delta);
+  };
+  
+  this.drawLine = function() {
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(this.livex, this.livey, 30, 50);
+  }
+}
+
+///////////////////////////////////
+
 function draw(sprite) {
   var coords = sprite.coords[sprite.state][sprite.frame];
   //(sprite, srcx, srcy, srcw, srch, destx, desty, destw, desth)
@@ -48,9 +101,17 @@ function drawSirenBar() {
                sirenBar.h);
 }
 
+function drawRoad() {
+  ctx.fillStyle = "grey";
+  ctx.fillRect(25, 0, 350, 600)
+}
+
 function redrawAll() {
   ctx.clearRect(0, 0, 400, 400);
   //draw(moose);
+  drawRoad();
+  roadLines.update();
+  roadLines.drawLines();
   drawSirenBar();
   draw(policeCar);
 }
