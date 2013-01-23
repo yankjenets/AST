@@ -63,7 +63,7 @@ function drawMoose() {
 }
 
 function redrawAll() {
-  ctx.clearRect(0, 0, 400, 400);
+  ctx.clearRect(0, 0, 500, 600);
   drawMoose();
   drawClbox(car);
   drawClbox(police_car);
@@ -71,7 +71,7 @@ function redrawAll() {
 
 function check_collisions(){
     //TODO loop police car through all boxes. 
-    console.log(clboxIntersect(car, police_car));
+    //console.log(clboxIntersect(car, police_car));
 }
 
 function onTimer() {
