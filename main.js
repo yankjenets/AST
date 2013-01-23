@@ -12,11 +12,11 @@ var intervalId;
 var timerDelay = 16.67;   //60 fps
 
 var moose = new Sprite("sprites/moose_walk.png", "down", 0, 0, 0, mooseCoords);
-var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
+var policeCar = new Sprite("sprites/police_car_new.png", "off", 0, 0, 0,
                            policeCoords);
 var sirenBar = new Object();
 sirenBar.x = 0;
-sirenBar.y = 0;
+sirenBar.y = 575;
 sirenBar.h = 25;
 sirenBar.max = 300;
 sirenBar.percent = 1;
@@ -30,6 +30,27 @@ function Sprite(src, state, frame, x, y, coords) {
   this.x = x;
   this.y = y
   this.coords = coords;
+}
+
+function clboxIntersect(sprite1, sprite2){
+  var sp1_right = sprite1.x + sprite1.coords.w;
+  var sp1_bottom = sprite1.y + sprite1.coords.h;
+  var sp2_right = sprite2.x + sprite2.coords.w; 
+  var sp2_bottom = sprite2.y + sprite2.coords.h;
+              
+  return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
+          sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
+}
+
+function drawClbox(sprite){
+  ctx.strokestyle = "red";
+  ctx.strokeRect( box.x, box.y, box.width, box.height);
+    }
+
+function drawExplosion(sprite){
+    //Calculate midpoint of sprite
+    var mid_x = Math.floor( (sprite.x+sprite.coords.w)/2);
+    var mid_y = Math.floor( (sprite.y+sprite.coords.h)/2);
 }
 
 function draw(sprite) {
@@ -49,7 +70,7 @@ function drawSirenBar() {
 }
 
 function redrawAll() {
-  ctx.clearRect(0, 0, 400, 400);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   //draw(moose);
   drawSirenBar();
   draw(policeCar);
