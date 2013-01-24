@@ -12,7 +12,7 @@ var intervalId;
 var timerDelay = 16.67;   //60 fps
 
 var delta = 3;
-var endGame;
+var endGame = false;
 
 var roadLines = new RoadLines(6);
 var moose = new Sprite("sprites/moose_walk.png", "right", 0, 50, 150, mooseCoords);
@@ -41,37 +41,42 @@ function Sprite(src, state, frame, x, y, coords) {
 }
 
 function clboxIntersect(sprite1, sprite2){
-  var sp1_right = sprite1.x + sprite1.coords.w;
-  var sp1_bottom = sprite1.y + sprite1.coords.h;
-  var sp2_right = sprite2.x + sprite2.coords.w; 
-  var sp2_bottom = sprite2.y + sprite2.coords.h;
-              
+  var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
+  var coords2 = sprite2.coords[sprite2.state][sprite2.frame];
+  var sp1_right = sprite1.x + coords1.w;
+  var sp1_bottom = sprite1.y + coords1.h;
+  var sp2_right = sprite2.x + coords2.w; 
+  var sp2_bottom = sprite2.y + coords2.h;
+  
   return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
           sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
 }
 
-function drawClbox(sprite){
+function drawClbox(box){
   ctx.strokestyle = "red";
-  ctx.strokeRect( box.x, box.y, box.width, box.height);
+  ctx.strokeRect(box.x, box.y, box.coords.w, box.coords.h);
     }
 
 function drawExplosion(sprite, exp_sprite){
   //Calculate midpoint of sprite
+  //Also stops clock if done -> game over
   exp_sprite.x = Math.floor((sprite.x+sprite.coords.w)/2);
   exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
 
-  var coords = exp_sprite.coords[sprite.state][sprite.frame];
+  var coords = exp_sprite.coords[exp_sprite.state][exp_sprite.frame];
 
   ctx.drawImage(sprite.image, coords.x, coords.y, coords.w, coords.h,
                 sprite.x, sprite.y, coords.w, coords.h);
+  exp_sprite.frame++;
 }
 
 function checkCollisions(sprite){
     for(var i = 0; i<obstacles.length; i++){
-      if(clboxIntersect(sprite, obstacles[i]))
-        endGame = true;
+      if(clboxIntersect(sprite, obstacles[i])){
+        return true;
+      }
     }
-      endGame = false;
+      return false;
 }
 ////////////////////////////////////
 /** Scrolling background objects **/
@@ -157,7 +162,25 @@ function redrawAll() {
   draw(policeCar);
 }
 
-function onTimer() {
+function onTimer() { 
+  if(!endGame) {
+    continueGame();
+  }
+  else{
+    finishGame();
+  }
+}
+
+function finishGame() {
+  var state = 0;
+   
+  ctx.font="18px sans-serif";
+  ctx.linewidth=1;
+  ctx.strokeText("Game Over", 200, 200);
+  state++;
+}
+
+function continueGame() {
   var xOffset;
   var yOffset;
   if(policeCar.state == "on") {
@@ -192,9 +215,9 @@ function onTimer() {
     policeCar.state = "off";
     policeCar.frame = 0;
   }
-  checkCollisions(policeCar);
 
   redrawAll();
+  endGame = checkCollisions(policeCar);
 }
 
 function onKeyDown(event) {
