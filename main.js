@@ -436,19 +436,15 @@ function redrawAll() {
   score.draw();
 }
 
-<<<<<<< HEAD
 //***********************************
 //Start the main game methods
 //***********************************
 
-
-=======
 /* onTimer() 
  *
  * At each interval, the state of the game is checked and the appropriate
  * function is called. 
  */
->>>>>>> Added ugly but functional main menu
 function onTimer() { 
   switch(gameState) {
     case MAIN_MENU: 
