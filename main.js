@@ -11,9 +11,17 @@ var spaceCode = 32;
 var intervalId;
 var timerDelay = 16.67;   //60 fps
 
-var moose = new Sprite("sprites/moose_walk.png", "down", 0, 0, 0, mooseCoords);
-var policeCar = new Sprite("sprites/police_car_new.png", "off", 0, 0, 0,
+var delta = 3;
+var endGame;
+
+var roadLines = new RoadLines(6);
+var moose = new Sprite("sprites/moose_walk.png", "right", 0, 50, 150, mooseCoords);
+var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
                            policeCoords);
+var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0, explosionCoords);
+
+var obstacles = new Array(moose);
+
 var sirenBar = new Object();
 sirenBar.x = 0;
 sirenBar.y = 575;
@@ -47,11 +55,75 @@ function drawClbox(sprite){
   ctx.strokeRect( box.x, box.y, box.width, box.height);
     }
 
-function drawExplosion(sprite){
-    //Calculate midpoint of sprite
-    var mid_x = Math.floor( (sprite.x+sprite.coords.w)/2);
-    var mid_y = Math.floor( (sprite.y+sprite.coords.h)/2);
+function drawExplosion(sprite, exp_sprite){
+  //Calculate midpoint of sprite
+  exp_sprite.x = Math.floor((sprite.x+sprite.coords.w)/2);
+  exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
+
+  var coords = exp_sprite.coords[sprite.state][sprite.frame];
+
+  ctx.drawImage(sprite.image, coords.x, coords.y, coords.w, coords.h,
+                sprite.x, sprite.y, coords.w, coords.h);
 }
+
+function checkCollisions(sprite){
+    for(var i = 0; i<obstacles.length; i++){
+      if(clboxIntersect(sprite, obstacles[i]))
+        endGame = true;
+    }
+      endGame = false;
+}
+////////////////////////////////////
+/** Scrolling background objects **/
+////////////////////////////////////
+
+function RoadLines(numLines) {
+  this.lines = new Array(2 * numLines);
+  
+  for (var i = 0; i < 2 * numLines; i++) {
+    this.lines[i] = new Line(185, -600 + (100*i));
+  }
+  
+  this.update = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].update(delta);
+    }
+  };
+  
+  this.drawLines = function() {
+    for (var i = 0; i < 2 * numLines; i++) {
+      this.lines[i].drawLine();
+    }
+  };
+}
+
+function Line(x, y) {
+  this.startx = x;
+  this.starty = y;
+  this.livex = x;
+  this.livey = y;
+  this.state = 0;
+  
+  this.update = function(delta) {
+    if (this.state === 99) {
+      this.state = 0;
+    } else {
+      this.state++;
+    }
+    
+    this.livex = this.startx;
+    this.livey = this.starty + (this.state * delta);
+  };
+  
+  this.drawLine = function() {
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(this.livex, this.livey, 30, 50);
+  }
+}
+
+
+
+///////////////////////////////////
 
 function draw(sprite) {
   var coords = sprite.coords[sprite.state][sprite.frame];
@@ -69,10 +141,18 @@ function drawSirenBar() {
                sirenBar.h);
 }
 
+function drawRoad() {
+  ctx.fillStyle = "grey";
+  ctx.fillRect(25, 0, 350, 600)
+}
+
 function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //draw(moose);
+  drawRoad();
+  roadLines.update();
+  roadLines.drawLines();
   drawSirenBar();
+  draw(moose);
   draw(policeCar);
 }
 
@@ -111,6 +191,7 @@ function onTimer() {
     policeCar.state = "off";
     policeCar.frame = 0;
   }
+  checkCollisions(policeCar);
 
   redrawAll();
 }
