@@ -156,13 +156,15 @@ function clboxIntersect(sprite1, sprite2){
   var sp1_bottom = sprite1.y + coords1.h;
   var sp2_right = sprite2.x + coords2.w; 
   var sp2_bottom = sprite2.y + coords2.h;
+
   
   return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
           sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
 }
 
 function drawClbox(box){
-  ctx.strokestyle = "red";
+  var coords = box.coords[box.state][box.frame];
+  ctx.strokestyle = "FF0000";
   ctx.strokeRect(box.x, box.y, box.coords.w, box.coords.h);
 }
 
@@ -181,12 +183,12 @@ function drawExplosion(sprite, exp_sprite){
 
 function checkCollisions(sprite){
   var i;
-  for(i = 0; i < allObstacles.length; i++) {
-    if(clboxIntersect(sprite, allObstacles[i])) {
-      endGame = true;
+  for(i = 0; i < mooses.length; i++) {
+    if(clboxIntersect(sprite, mooses[i])) {
+      return true;
     }
   }
-  endGame = false;
+  return false;
 }
 
 ////////////////////////////////////
