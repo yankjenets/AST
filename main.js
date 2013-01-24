@@ -1,6 +1,7 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
+//Keyboard variables
 var keys = new Object();
 var wCode = 87;
 var aCode = 65;
@@ -8,24 +9,57 @@ var sCode = 83;
 var dCode = 68;
 var spaceCode = 32;
 
+//Timing variables
 var intervalId;
 var timerDelay = 16.67;   //60 fps
 var frame = 0;
 
-var delta = 3;
-var endGame = false;
+//Controls how fast the game is going
+var delta = 3;	
 
+//Game state constants
+var MAIN_MENU = 1;
+var INSTRUCTIONS = 2;
+var IN_GAME = 3;
+var PAUSED = 4;
+var GAME_OVER = 5;
+
+//current state of the game
+var gameState = IN_GAME;			
+
+//Object that keeps track of players score
 var score = new Score(0);
 
+//Objects within the game
 var allObstacles = [];
 var mooses = [];
 var roadLines = new RoadLines(6);
+var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
+                           policeCoords, 1, 3);
+var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                           explosionCoords, 8, 0);
 
-//non-inclusive on high
+var sirenBar = new Object();
+sirenBar.x = 0;
+sirenBar.y = 575;
+sirenBar.h = 25;
+sirenBar.max = 250;
+sirenBar.percent = 1;
+sirenBar.fillStyle = "red";
+
+/* randomInt(low, high)
+ *
+ * RETURNS a random integer between low inclusive and high exclusive
+ */
 function randomInt(low, high) {
   return Math.floor((Math.random() * (high - low)) + low);
 }
 
+/* spawnMoose()
+ *
+ * Creates a moose obstacle at a random x location facing a random direction
+ * with a random speed
+ */
 function spawnMoose() {
   var x = randomInt(0, 400);
   var y = -100;
@@ -52,19 +86,12 @@ function spawnMoose() {
   allObstacles.push(moose);
 };
 
-var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
-                           policeCoords, 1, 3);
-var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                           explosionCoords, 8, 0);
-
-var sirenBar = new Object();
-sirenBar.x = 0;
-sirenBar.y = 575;
-sirenBar.h = 25;
-sirenBar.max = 250;
-sirenBar.percent = 1;
-sirenBar.fillStyle = "red";
-
+/* Sprite(src, state, frame, x, y, coords, numFrames, speed)
+ *
+ * CONSTRUCTOR
+ * Creates a sprite object with the attributes passed in
+ * Sprite objects are used for in-game animations
+ */
 function Sprite(src, state, frame, x, y, coords, numFrames, speed) {
   this.image = new Image();
   this.image.src = src;
@@ -202,19 +229,36 @@ function updateStationary() {
   }
 }
 
+/* RoadLines(numLines)
+ * 
+ * CONSTRUCTOR
+ * Creates a container that contains 2*numLines Line objects
+ */
 function RoadLines(numLines) {
+  /* numLines determines how many are on the road to start
+   * twice as many are in the container so that scrolling appears continuous
+   */
   this.lines = new Array(2 * numLines);
 
+  //populates lines array
   for (var i = 0; i < 2 * numLines; i++) {
     this.lines[i] = new Line(185, -600 + (100*i));
   }
 
+  /* update()
+   *
+   * updates container by updating each individual line
+   */
   this.update = function() {
     for (var i = 0; i < 2 * numLines; i++) {
       this.lines[i].update(delta);
     }
   };
 
+  /* draw()
+   *
+   * draws all roadLines by drawing each individual one
+   */
   this.drawLines = function() {
     for (var i = 0; i < 2 * numLines; i++) {
       this.lines[i].drawLine();
@@ -222,13 +266,29 @@ function RoadLines(numLines) {
   };
 }
 
+/* Line(x, y)
+ *
+ * CONSTRUCTOR
+ * Creates a Line object with initial coordinates (x, y)
+ * The Line object is displayed on the road and is used in scrolling to
+ * make it appear as if the car is travelling
+ */
 function Line(x, y) {
+  //Initial coordinates
   this.startx = x;
   this.starty = y;
+  
+  //Current coordinates
   this.livex = x;
   this.livey = y;
+  
+  //State of the scrolling animation
   this.state = 0;
 
+  /* update(delta)
+   *
+   * Determines the new location of Line using its state
+   */
   this.update = function(delta) {
     if (this.state === 99) {
       this.state = 0;
@@ -236,10 +296,15 @@ function Line(x, y) {
       this.state++;
     }
 
+	//update coordinates
     this.livex = this.startx;
     this.livey = this.starty + (this.state * delta);
   };
 
+  /* drawLine
+   *
+   * Fills a yellow, 30x50 rectangle at the current coordinates
+   */
   this.drawLine = function() {
     ctx.fillStyle = "yellow";
     ctx.fillRect(this.livex, this.livey, 30, 50);
@@ -250,19 +315,35 @@ function Line(x, y) {
 ////////** Score Object **/////////
 ///////////////////////////////////
 
+/* Score(initScore)
+ *
+ * CONSTRUCTOR
+ * Creates an object that keeps track of the player's score as well as
+ * data that controls how the score is displayed
+ */
 function Score(initScore) {
   this.score = initScore;
   
+  //display characteristics
   this.font = "bold 20px Ariel";
   this.fillStyle = "red";
   
+  //display location
   this.x = 260;
   this.y = canvas.height - 5;
   
+  /* update()
+   *
+   * updates score by adding delta to it
+   */
   this.update = function() {
     this.score += delta;
   }
   
+  /* draw()
+   *
+   * Fills text to display score using the display characteristics and location
+   */
   this.draw = function() {
      ctx.font = this.font;
      ctx.fillStyle = this.fillStyle;
@@ -297,6 +378,10 @@ function drawSirenBar() {
                sirenBar.h);
 }
 
+/* drawRoad()
+ *
+ * Draws a grey rectangle spanning most of the canvas to represent the road
+ */
 function drawRoad() {
   ctx.fillStyle = "grey";
   ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
@@ -311,13 +396,13 @@ function redrawAll() {
   drawSirenBar();
   draw(policeCar);
   for(i = 0; i < mooses.length; i++) {
-    draw(mooses[i], 2);
+    draw(mooses[i]);
   }
   score.draw();
 }
 
 function onTimer() { 
-  if(!endGame) {
+  if(gameState === IN_GAME) {
     continueGame();
   }
   else{
@@ -347,8 +432,10 @@ function continueGame() {
   }
 
   redrawAll();
-  endGame = checkCollisions(policeCar);
   frame++;
+  if (checkCollisions(policeCar)) {
+    gameState === GAME_OVER;
+  }
 }
 
 function onKeyDown(event) {
