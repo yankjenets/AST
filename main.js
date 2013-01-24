@@ -15,6 +15,8 @@ var frame = 0;
 var delta = 3;
 var endGame;
 
+var score = new Score(0);
+
 var allObstacles = [];
 var mooses = [];
 var roadLines = new RoadLines(6);
@@ -59,7 +61,7 @@ var sirenBar = new Object();
 sirenBar.x = 0;
 sirenBar.y = 575;
 sirenBar.h = 25;
-sirenBar.max = 300;
+sirenBar.max = 250;
 sirenBar.percent = 1;
 sirenBar.fillStyle = "red";
 
@@ -229,6 +231,32 @@ function Line(x, y) {
 
 ///////////////////////////////////
 
+///////////////////////////////////
+////////** Score Object **/////////
+///////////////////////////////////
+
+function Score(initScore) {
+  this.score = initScore;
+  
+  this.font = "bold 20px Ariel";
+  this.fillStyle = "red";
+  
+  this.x = 260;
+  this.y = canvas.height - 5;
+  
+  this.update = function() {
+    this.score += delta;
+  }
+  
+  this.draw = function() {
+     ctx.font = this.font;
+     ctx.fillStyle = this.fillStyle;
+     ctx.fillText("Score: " + this.score, this.x, this.y);
+  }
+}
+
+////////////////////////////////////
+
 function draw(sprite) {
   var scale = 1;
   if(arguments.length > 1) {
@@ -244,6 +272,8 @@ function draw(sprite) {
 }
 
 function drawSirenBar() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(sirenBar.x, sirenBar.y, sirenBar.max, sirenBar.h);
   ctx.strokeStyle = "black";
   ctx.strokeRect(sirenBar.x, sirenBar.y, sirenBar.max,
                sirenBar.h);
@@ -268,6 +298,7 @@ function redrawAll() {
   for(i = 0; i < mooses.length; i++) {
     draw(mooses[i], 2);
   }
+  score.draw();
 }
 
 function onTimer() {
@@ -276,6 +307,7 @@ function onTimer() {
   }
   updateStationary();
   roadLines.update();
+  score.update();
   updatePoliceCar();
   if(frame % 10 == 0) {
     updateMooses();
