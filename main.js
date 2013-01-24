@@ -52,7 +52,7 @@ function spawnMoose() {
   allObstacles.push(moose);
 };
 
-var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
+var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
                            policeCoords, 1, 3);
 var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
                            explosionCoords, 8, 0);
@@ -105,17 +105,24 @@ function updateMooses() {
 }
 
 function updatePoliceCar() {
+  var h = policeCar.coords[policeCar.state][policeCar.frame].h;
+  var w = policeCar.coords[policeCar.state][policeCar.frame].w;
+
   if(keys[wCode]) {
-    policeCar.y -= policeCar.speed;
+    if (policeCar.y > 5)
+      policeCar.y -= policeCar.speed;
   }
   if(keys[aCode]) {
+    if (policeCar.x > 30)
     policeCar.x -= policeCar.speed;
   }
   if(keys[sCode]) {
-    policeCar.y += policeCar.speed;
+    if (policeCar.y < canvas.height - h - 5)
+      policeCar.y += policeCar.speed;
   }
   if(keys[dCode]) {
-    policeCar.x += policeCar.speed;
+    if (policeCar.x < 370 - w)
+      policeCar.x += policeCar.speed;
   }
   if(keys[spaceCode]) {
     policeCar.state = "on";
