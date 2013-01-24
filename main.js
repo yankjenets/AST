@@ -105,17 +105,6 @@ function updateMooses() {
 }
 
 function updatePoliceCar() {
-  if(policeCar.state == "on") {
-    if(sirenBar.percent > 0) {
-      sirenBar.percent -= 0.01;
-    }
-    policeCar.speed = 6;
-  } else {
-    if(sirenBar.percent < 1) {
-      sirenBar.percent += 0.01;
-    }
-    policeCar.speed = 3;
-  }
   if(keys[wCode]) {
     policeCar.y -= policeCar.speed;
   }
@@ -130,9 +119,25 @@ function updatePoliceCar() {
   }
   if(keys[spaceCode]) {
     policeCar.state = "on";
-    policeCar.frame = (policeCar.frame + 1) % 8;
   } else {
     policeCar.state = "off";
+  }
+  
+  if(policeCar.state == "on") {
+    if(sirenBar.percent > 0) {
+      sirenBar.percent -= 0.01;
+      policeCar.speed = 6;
+      policeCar.frame = (policeCar.frame + 1) % 8;
+    } else {
+      policeCar.state = "off";
+      policeCar.speed = 3;
+      policeCar.frame = 0;
+    }
+  } else {
+    if(sirenBar.percent < 1) {
+      sirenBar.percent += 0.01;
+    }
+    policeCar.speed = 3;
     policeCar.frame = 0;
   }
 }
@@ -183,6 +188,7 @@ function updateStationary() {
     allObstacles[i].y += delta;
   }
 }
+
 function RoadLines(numLines) {
   this.lines = new Array(2 * numLines);
 
