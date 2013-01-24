@@ -25,7 +25,7 @@ var PAUSED = 4;
 var GAME_OVER = 5;
 
 //current state of the game
-var gameState = IN_GAME;			
+var gameState = MAIN_MENU;			
 
 //Object that keeps track of players score
 var score = new Score(0);
@@ -393,6 +393,35 @@ function drawRoad() {
   ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
 }
 
+/* runMainMenu()
+ *
+ * Controls function and behavior of the opening main menu
+ */
+function runMainMenu() {
+  drawMainMenu();
+  
+  if(keys[spaceCode]) {
+    gameState = IN_GAME;
+  }
+}
+
+/* drawMainMenu()
+ *
+ * Draws the main menu graphics and text
+ */
+function drawMainMenu() {
+  ctx.fillStyle = "navy";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  var mainImage = new Image();
+  mainImage.src = "sprites/title.jpg";
+  ctx.drawImage(mainImage, 50, 50);
+  
+  ctx.fillStyle = "white";
+  ctx.font = "bold italic 34px impact";
+  ctx.fillText("Press the Spacebar to play!", 6, canvas.height - 7);
+}
+
 function redrawAll() {
   var i;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -407,17 +436,35 @@ function redrawAll() {
   score.draw();
 }
 
+<<<<<<< HEAD
 //***********************************
 //Start the main game methods
 //***********************************
 
 
+=======
+/* onTimer() 
+ *
+ * At each interval, the state of the game is checked and the appropriate
+ * function is called. 
+ */
+>>>>>>> Added ugly but functional main menu
 function onTimer() { 
-  if(gameState === IN_GAME) {
-    continueGame();
-  }
-  else{
-    finishGame();
+  switch(gameState) {
+    case MAIN_MENU: 
+      runMainMenu();
+      break;
+    case INSTRUCTIONS: break;
+    case IN_GAME:  
+      continueGame(); 
+      break;
+    case PAUSED: break;
+    case GAME_OVER: 
+      finishGame();
+      clearInterval(intervalId);
+      break;
+    case DEFAULT:
+      throw "Invalid Game State!";
   }
 }
 
