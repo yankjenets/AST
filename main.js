@@ -457,7 +457,6 @@ function onTimer() {
     case PAUSED: break;
     case GAME_OVER: 
       finishGame();
-      clearInterval(intervalId);
       break;
     case DEFAULT:
       throw "Invalid Game State!";
