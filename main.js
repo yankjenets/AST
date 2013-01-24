@@ -181,8 +181,8 @@ function drawExplosion(sprite, exp_sprite){
 
 function checkCollisions(sprite){
   var i;
-  for(i = 0; i < allObstacles.length; i++) {
-    if(clboxIntersect(sprite, allObstacles[i])) {
+  for(i = 0; i < mooses.length; i++) {
+    if(clboxIntersect(sprite, mooses[i])) {
       endGame = true;
     }
   }
@@ -243,10 +243,6 @@ function Line(x, y) {
     ctx.fillRect(this.livex, this.livey, 30, 50);
   }
 }
-
-
-
-///////////////////////////////////
 
 ///////////////////////////////////
 ////////** Score Object **/////////
