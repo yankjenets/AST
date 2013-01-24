@@ -12,7 +12,7 @@ var intervalId;
 var timerDelay = 16.67;   //60 fps
 var frame = 0;
 
-var delta = 3;
+var delta = 6;
 var endGame = false;
 
 var score = new Score(0);
@@ -149,6 +149,10 @@ function updatePoliceCar() {
   }
 }
 
+//*****************************
+// Collision Box Objects
+// ****************************
+
 function clboxIntersect(sprite1, sprite2){
   var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
   var coords2 = sprite2.coords[sprite2.state][sprite2.frame];
@@ -169,16 +173,16 @@ function drawClbox(box){
 }
 
 function drawExplosion(sprite, exp_sprite){
-  //Calculate midpoint of sprite
-  //Also stops clock if done -> game over
-  exp_sprite.x = Math.floor((sprite.x+sprite.coords.w)/2);
-  exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
+  //exp_sprite.x = Math.floor((sprite.x+sprite.coords.h)/2);
+  //exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
+  exp_sprite.x = sprite.x;
+  exp_sprite.y = sprite.y;
 
   var coords = exp_sprite.coords[exp_sprite.state][exp_sprite.frame];
+  console.log("Exp_coords.x"+coords.x+" Exp_coords.y:"+coords.y);
 
-  ctx.drawImage(sprite.image, coords.x, coords.y, coords.w, coords.h,
-                sprite.x, sprite.y, coords.w, coords.h);
-  exp_sprite.frame++;
+  ctx.drawImage(exp_sprite.image, coords.x, coords.y, coords.w, coords.h,
+                exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
 
 function checkCollisions(sprite){
@@ -190,6 +194,8 @@ function checkCollisions(sprite){
   }
   return false;
 }
+
+////////////////////////////////////
 
 ////////////////////////////////////
 /** Scrolling background objects **/
@@ -316,6 +322,11 @@ function redrawAll() {
   score.draw();
 }
 
+//***********************************
+//Start the main game methods
+//***********************************
+
+
 function onTimer() { 
   if(!endGame) {
     continueGame();
@@ -325,13 +336,25 @@ function onTimer() {
   }
 }
 
+
 function finishGame() {
-  var state = 0;
-   
+  redrawAll();
+
+  Explosion_state = explosion.speed;
+  if(explosion.frame < 7){
+    if(explosion.speed%10 == 9){
+      explosion.frame = (explosion.frame + 1) % 8;
+      explosion.speed = 0;
+    }
+    else {
+      drawExplosion(policeCar, explosion);
+      explosion.speed++;
+      console.log("ExplosionState:"+Explosion_state);
+    } 
+  }
   ctx.font="18px sans-serif";
   ctx.linewidth=1;
   ctx.strokeText("Game Over", 200, 200);
-  state++;
 }
 
 function continueGame() {
