@@ -456,9 +456,11 @@ function continueGame() {
 
   redrawAll();
   frame++;
+  console.log("Collisions:"+checkCollisions(policeCar));
   if (checkCollisions(policeCar)) {
-    gameState === GAME_OVER;
+    gameState = GAME_OVER;
   }
+  console.log("GameState:"+gameState);
 }
 
 function onKeyDown(event) {
