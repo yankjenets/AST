@@ -143,11 +143,12 @@ function drawSirenBar() {
 
 function drawRoad() {
   ctx.fillStyle = "grey";
-  ctx.fillRect(25, 0, 350, 600)
+  ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
 }
 
 function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //draw(moose);
   drawRoad();
   roadLines.update();
   roadLines.drawLines();
