@@ -34,3 +34,14 @@ policeCoords["on"][4] = {"x":0, "y":512, "w":42, "h":78};
 policeCoords["on"][5] = {"x":0, "y":640, "w":42, "h":78};
 policeCoords["on"][6] = {"x":0, "y":768, "w":42, "h":78};
 policeCoords["on"][7] = {"x":0, "y":896, "w":42, "h":78};
+
+var explosionCoords = new Object();
+
+explosionCoords[0] = {"x":3, "y":29, "w":47, "h":40};
+explosionCoords[1] = {"x":66, "y":33, "w":44, "h":36};
+explosionCoords[2] = {"x":127, "y":12, "w":48, "h":57};
+explosionCoords[3] = {"x":200, "y":8, "w":46, "h":61};
+explosionCoords[4] = {"x":266, "y":6, "w":47, "h":63};
+explosionCoords[5] = {"x":322, "y":7, "w":48, "h":62};
+explosionCoords[6] = {"x":383, "y":6, "w":48, "h":63};
+explosionCoords[7] = {"x":445, "y":6, "w":41, "h":55};

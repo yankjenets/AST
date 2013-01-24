@@ -13,6 +13,7 @@ var timerDelay = 16.67;   //60 fps
 var frame = 0;
 
 var delta = 3;
+var endGame;
 
 var allObstacles = [];
 var mooses = [];
@@ -51,9 +52,12 @@ function spawnMoose() {
 
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 0, 0,
                            policeCoords, 1, 3);
+var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                           explosionCoords, 8, 0);
+
 var sirenBar = new Object();
 sirenBar.x = 0;
-sirenBar.y = 0;
+sirenBar.y = 575;
 sirenBar.h = 25;
 sirenBar.max = 300;
 sirenBar.percent = 1;
@@ -131,6 +135,42 @@ function updatePoliceCar() {
   }
 }
 
+function clboxIntersect(sprite1, sprite2){
+  var sp1_right = sprite1.x + sprite1.coords.w;
+  var sp1_bottom = sprite1.y + sprite1.coords.h;
+  var sp2_right = sprite2.x + sprite2.coords.w;
+  var sp2_bottom = sprite2.y + sprite2.coords.h;
+
+  return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
+          sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
+}
+
+function drawClbox(sprite){
+  ctx.strokestyle = "red";
+  ctx.strokeRect( box.x, box.y, box.width, box.height);
+}
+
+function drawExplosion(sprite, exp_sprite){
+  //Calculate midpoint of sprite
+  exp_sprite.x = Math.floor((sprite.x+sprite.coords.w)/2);
+  exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
+
+  var coords = exp_sprite.coords[sprite.state][sprite.frame];
+
+  ctx.drawImage(sprite.image, coords.x, coords.y, coords.w, coords.h,
+                sprite.x, sprite.y, coords.w, coords.h);
+}
+
+function checkCollisions(sprite){
+  var i;
+  for(i = 0; i < allObstacles.length; i++) {
+    if(clboxIntersect(sprite, allObstacles[i])) {
+      endGame = true;
+    }
+  }
+  endGame = false;
+}
+
 ////////////////////////////////////
 /** Scrolling background objects **/
 ////////////////////////////////////
@@ -185,6 +225,8 @@ function Line(x, y) {
   }
 }
 
+
+
 ///////////////////////////////////
 
 function draw(sprite) {
@@ -212,11 +254,12 @@ function drawSirenBar() {
 
 function drawRoad() {
   ctx.fillStyle = "grey";
-  ctx.fillRect(25, 0, 350, 600)
+  ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
 }
 
 function redrawAll() {
   var i;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRoad();
   roadLines.drawLines();
@@ -229,7 +272,6 @@ function redrawAll() {
 
 function onTimer() {
   if(frame % 100 == 0) {
-    console.log("spawning moose");
     spawnMoose();
   }
   updateStationary();
@@ -238,6 +280,7 @@ function onTimer() {
   if(frame % 10 == 0) {
     updateMooses();
   }
+  checkCollisions(policeCar);
 
   redrawAll();
   frame++;
