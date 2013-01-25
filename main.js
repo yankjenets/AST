@@ -435,6 +435,10 @@ function drawMainMenu() {
  */
 function runInstructions() {
   drawInstructions();
+  
+  if(keys[spaceCode]) {
+    gameState = IN_GAME;
+  }
 }
 
 function drawInstructions() {
@@ -457,6 +461,9 @@ function drawInstructions() {
   
   ctx.font = "23px impact";
   ctx.fillText("Use SPACEBAR to pull over drunk drivers.", 8, 435);
+  
+  ctx.font = "bold italic 34px impact";
+  ctx.fillText("Press the Spacebar to play", 6, canvas.height - 7);
 }
 
 function redrawAll() {
