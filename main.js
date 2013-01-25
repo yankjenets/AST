@@ -7,6 +7,7 @@ var wCode = 87;
 var aCode = 65;
 var sCode = 83;
 var dCode = 68;
+var hCode = 72;
 var spaceCode = 32;
 
 //Timing variables
@@ -402,6 +403,8 @@ function runMainMenu() {
   
   if(keys[spaceCode]) {
     gameState = IN_GAME;
+  } else if (keys[hCode]) {
+    gameState = INSTRUCTIONS;
   }
 }
 
@@ -410,6 +413,8 @@ function runMainMenu() {
  * Draws the main menu graphics and text
  */
 function drawMainMenu() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
   ctx.fillStyle = "navy";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
@@ -419,12 +424,43 @@ function drawMainMenu() {
   
   ctx.fillStyle = "white";
   ctx.font = "bold italic 34px impact";
-  ctx.fillText("Press the Spacebar to play!", 6, canvas.height - 7);
+  
+  ctx.fillText("Press H for Instructions", 30, canvas.height - 57);
+  ctx.fillText("Press the Spacebar to play", 6, canvas.height - 7);
+}
+
+/* runInstructions()
+ *
+ * Controls function and behavior of the instruction menu
+ */
+function runInstructions() {
+  drawInstructions();
+}
+
+function drawInstructions() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = "navy";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = "white";
+  ctx.font = "bold 40px impact";
+  ctx.fillText("INSTRUCTIONS", 75, 50);
+   
+  ctx.font = "25px impact";
+  ctx.fillText("Forward - Back", 125, 120);
+  ctx.fillText("Left - Right", 142, 150);
+  
+  var keysImage = new Image();
+  keysImage.src = "sprites/keys_wasd.png";
+  ctx.drawImage(keysImage, 8, 160);
+  
+  ctx.font = "23px impact";
+  ctx.fillText("Use SPACEBAR to pull over drunk drivers.", 8, 435);
 }
 
 function redrawAll() {
   var i;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRoad();
   roadLines.drawLines();
@@ -450,7 +486,9 @@ function onTimer() {
     case MAIN_MENU: 
       runMainMenu();
       break;
-    case INSTRUCTIONS: break;
+    case INSTRUCTIONS: 
+      runInstructions();
+      break;
     case IN_GAME:  
       continueGame(); 
       break;
