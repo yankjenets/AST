@@ -567,6 +567,7 @@ function resetGame(){
   delta = 1;
   gameCounter = 0;
   score.reset();
+  sirenBar.percent = 1;
 }
 
 function runEnd() {
@@ -632,6 +633,7 @@ function continueGame() {
   //console.log("Collisions:"+checkCollisions(policeCar));
   if (checkCollisions(policeCar)) {
     gameState = GAME_OVER;
+    keys[spaceCode] = 0;
   }
   //console.log("GameState:"+gameState);
 }
