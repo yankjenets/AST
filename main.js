@@ -8,6 +8,7 @@ var aCode = 65;
 var sCode = 83;
 var dCode = 68;
 var hCode = 72;
+var rCode = 82;
 var spaceCode = 32;
 
 //Timing variables
@@ -15,8 +16,11 @@ var intervalId;
 var timerDelay = 16.67;   //60 fps
 var frame = 0;
 
+//Determines how long the game has been running
+var gameCounter = 0;
+
 //Controls how fast the game is going
-var delta = 3;
+var delta = 1;
 
 //Game state constants
 var MAIN_MENU = 1;
@@ -27,6 +31,9 @@ var GAME_OVER = 5;
 
 //current state of the game
 var gameState = MAIN_MENU;
+
+//Local high score of the game
+var highScore = 0;
 
 //Object that keeps track of players score
 var score = new Score(0);
@@ -178,7 +185,7 @@ function updatePoliceCar() {
     policeCar.x -= policeCar.speed;
   }
   if(keys[sCode]) {
-    if (policeCar.y < canvas.height - h - 5)
+    if (policeCar.y < canvas.height - h - 30)
       policeCar.y += policeCar.speed;
   }
   if(keys[dCode]) {
@@ -271,6 +278,7 @@ function checkDrunkCollisions(sprite){
        (allObstacles[i][1] == "drunk-car") &&
        (clboxIntersect(sprite, ob, ob.coords[ob.state][ob.frame].h))) {
       allObstacles.splice(i, 1);
+      score.score += 100;
     }
   }
 }
@@ -297,11 +305,11 @@ function RoadLines(numLines) {
   /* numLines determines how many are on the road to start
    * twice as many are in the container so that scrolling appears continuous
    */
-  this.lines = new Array(2 * numLines);
+  this.lines = new Array(3 * numLines);
 
   //populates lines array
-  for (var i = 0; i < 2 * numLines; i++) {
-    this.lines[i] = new Line(185, -600 + (100*i));
+  for (var i = 0; i < 3 * numLines; i++) {
+    this.lines[i] = new Line(185, -1200 + (100*i));
   }
 
   /* update()
@@ -309,7 +317,7 @@ function RoadLines(numLines) {
    * updates container by updating each individual line
    */
   this.update = function() {
-    for (var i = 0; i < 2 * numLines; i++) {
+    for (var i = 0; i < 3 * numLines; i++) {
       this.lines[i].update(delta);
     }
   };
@@ -319,7 +327,7 @@ function RoadLines(numLines) {
    * draws all roadLines by drawing each individual one
    */
   this.drawLines = function() {
-    for (var i = 0; i < 2 * numLines; i++) {
+    for (var i = 0; i < 3 * numLines; i++) {
       this.lines[i].drawLine();
     }
   };
@@ -386,10 +394,19 @@ function Score(initScore) {
   //display characteristics
   this.font = "bold 20px Ariel";
   this.fillStyle = "red";
+  this.textAlign = "start";
 
   //display location
   this.x = 260;
   this.y = canvas.height - 5;
+
+  /* reset()
+   *
+   * resets the score to 0
+   */
+  this.reset = function() {
+    this.score = 0;
+  }
 
   /* update()
    *
@@ -405,6 +422,7 @@ function Score(initScore) {
    */
   this.draw = function() {
      ctx.font = this.font;
+     ctx.textAlign = this.textAlign;
      ctx.fillStyle = this.fillStyle;
      ctx.fillText("Score: " + this.score, this.x, this.y);
   }
@@ -452,8 +470,10 @@ function runMainMenu() {
 
   if(keys[spaceCode]) {
     gameState = IN_GAME;
+    keys[spaceCode] = 0;
   } else if (keys[hCode]) {
     gameState = INSTRUCTIONS;
+    keys[hCode] = 0;
   }
 }
 
@@ -476,6 +496,7 @@ function runInstructions() {
 
   if(keys[spaceCode]) {
     gameState = IN_GAME;
+    keys[spaceCode] = 0;
   }
 }
 
@@ -490,11 +511,11 @@ function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRoad();
   roadLines.drawLines();
-  drawSirenBar();
   draw(policeCar);
   for(i = 0; i < allObstacles.length; i++) {
     draw(allObstacles[i][0]);
   }
+  drawSirenBar();
   score.draw();
 }
 
@@ -520,14 +541,39 @@ function onTimer() {
       break;
     case PAUSED: break;
     case GAME_OVER:
-      finishGame();
+      runEnd();
       break;
     case DEFAULT:
       throw "Invalid Game State!";
   }
 }
 
-function finishGame() {
+function resetGame(){
+  allObstacles = [];
+  mooses = [];
+  policeCar.x = 175;
+  policeCar.y = 200;
+  explosion.frame = 0;
+  delta = 1;
+  gameCounter = 0;
+  score.reset();
+}
+
+function runEnd() {
+  drawEnd();
+
+  if(keys[spaceCode]){
+    resetGame();
+    gameState = MAIN_MENU;
+    keys[spaceCode] = 0;
+  } else if(keys[rCode]){
+    resetGame();
+    gameState = IN_GAME;
+    keys[rCode] = 0;
+  }
+}
+
+function drawEnd() {
   redrawAll();
 
   Explosion_state = explosion.speed;
@@ -542,13 +588,18 @@ function finishGame() {
       //console.log("ExplosionState:"+Explosion_state);
     }
   }
-  ctx.font="18px sans-serif";
-  ctx.linewidth=1;
-  ctx.strokeText("Game Over", 200, 200);
+  ctx.fillStyle = "red";
+  ctx.font="60px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", 200, 200);
+
+  ctx.font="20px sans-serif";
+  ctx.fillText("Press space to go to the main menu", 200, 300);
+  ctx.fillText("Press R to restart", 200, 320);
 }
 
 function continueGame() {
-  if(frame % 100 == 0) {
+  if(frame % (100 - (5 * delta)) == 0) {
     spawnMoose();
     spawnCar();
   }
@@ -558,6 +609,13 @@ function continueGame() {
   updatePoliceCar();
   updateObstacles();
   checkDrunkCollisions(policeCar);
+
+  if (gameCounter <= 3000) {
+    gameCounter++;
+    console.log(gameCounter);
+  }
+
+  delta = Math.floor(gameCounter / 300) + 1;
 
   redrawAll();
   frame++;

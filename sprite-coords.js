@@ -4,21 +4,21 @@ mooseCoords["right"] = new Object();
 mooseCoords["left"] = new Object();
 mooseCoords["up"] = new Object();
 
-mooseCoords["down"][0] = {"x":25, "y":29, "w":14, "h":34};
-mooseCoords["down"][1] = {"x":89, "y":28, "w":14, "h":34};
-mooseCoords["down"][2] = {"x":153, "y":29, "w":14, "h":34};
+mooseCoords["down"][0] = {"x":44, "y":52, "w":29, "h":64};
+mooseCoords["down"][1] = {"x":159, "y":50, "w":30, "h":63};
+mooseCoords["down"][2] = {"x":275, "y":52, "w":30, "h":64};
 
-mooseCoords["right"][0] = {"x":13, "y":163, "w":43, "h":28};
-mooseCoords["right"][1] = {"x":78, "y":161, "w":42, "h":30};
-mooseCoords["right"][2] = {"x":141, "y":162, "w":43, "h":29};
+mooseCoords["left"][0] = {"x":14, "y":177, "w":82, "h":55};
+mooseCoords["left"][1] = {"x":130, "y":174, "w":79, "h":58};
+mooseCoords["left"][2] = {"x":246, "y":179, "w":81, "h":53};
 
-mooseCoords["left"][0] = {"x":9, "y":98, "w":43, "h":29};
-mooseCoords["left"][1] = {"x":73, "y":97, "w":42, "h":30};
-mooseCoords["left"][2] = {"x":137, "y":99, "w":43, "h":28};
+mooseCoords["right"][0] = {"x":23, "y":295, "w":79, "h":53};
+mooseCoords["right"][1] = {"x":140, "y":291, "w":78, "h":75};
+mooseCoords["right"][2] = {"x":255, "y":293, "w":79, "h":55};
 
-mooseCoords["up"][0] = {"x":25, "y":223, "w":14, "h":33};
-mooseCoords["up"][1] = {"x":89, "y":223, "w":14, "h":31};
-mooseCoords["up"][2] = {"x":153, "y":224, "w":14, "h":32};
+mooseCoords["up"][0] = {"x":42, "y":402, "w":30, "h":62};
+mooseCoords["up"][1] = {"x":159, "y":402, "w":30, "h":59};
+mooseCoords["up"][2] = {"x":275, "y":404, "w":30, "h":60};
 
 var policeCoords = new Object();
 policeCoords["off"] = new Object();
