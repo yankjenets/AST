@@ -33,7 +33,7 @@ var GAME_OVER = 5;
 var gameState = MAIN_MENU;			
 
 //Local high score of the game
-var highScore = 0;
+var highscore = 0;
 
 //Object that keeps track of players score
 var score = new Score(0);
@@ -381,6 +381,7 @@ function Score(initScore) {
 
 ////////////////////////////////////
 
+
 function draw(sprite) {
   var scale = 1;
   if(arguments.length > 1) {
@@ -413,6 +414,13 @@ function drawSirenBar() {
 function drawRoad() {
   ctx.fillStyle = "grey";
   ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
+}
+
+/* drawSpeed()
+ *
+ * Draws text indicating speed to the user
+ */
+function drawSpeed(){
 }
 
 /* runMainMenu()
@@ -471,6 +479,7 @@ function redrawAll() {
     draw(mooses[i]);
   }
   score.draw();
+  drawSpeed();
 }
 
 //***********************************
@@ -510,6 +519,9 @@ function resetGame(){
   explosion.frame = 0;
   delta = 1;
   gameCounter = 0;
+  if(score.score > highscore){
+    highscore = score.score;
+  }
   score.reset();
 }
 
@@ -542,14 +554,24 @@ function drawEnd() {
       console.log("ExplosionState:"+Explosion_state);
     } 
   }
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "blue";
   ctx.font="60px sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("Game Over", 200, 200);
 
+  var scoreTodraw = highscore;
+  if(score.score > highscore){
+    scoreTodraw = score.score;
+    ctx.font="40px sans-serif";
+    ctx.fillText("New HighScore!!!!", 200, 240);
+  }
+  
+  ctx.font="30px sans-serif";
+  ctx.fillText("HighScore: "+scoreTodraw, 200, 280);
+
   ctx.font="20px sans-serif";
-  ctx.fillText("Press space to go to the main menu", 200, 300);
-  ctx.fillText("Press R to restart", 200, 320);
+  ctx.fillText("Press space to go to the main menu", 200, 330);
+  ctx.fillText("Press R to restart", 200, 350);
 }
 
 function continueGame() {
