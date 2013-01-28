@@ -413,8 +413,10 @@ function runMainMenu() {
   
   if(keys[spaceCode]) {
     gameState = IN_GAME;
+    keys[spaceCode] = 0;
   } else if (keys[hCode]) {
     gameState = INSTRUCTIONS;
+    keys[hCode] = 0;
   }
 }
 
@@ -437,6 +439,7 @@ function runInstructions() {
   
   if(keys[spaceCode]) {
     gameState = IN_GAME;
+    keys[spaceCode] = 0;
   }
 }
 
@@ -503,10 +506,12 @@ function runEnd() {
   if(keys[spaceCode]){
     resetGame();
     gameState = MAIN_MENU;
+    keys[spaceCode] = 0;
   }
   if(keys[rCode]){
     resetGame();
     gameState = IN_GAME;
+    keys[rCode] = 0;
   }
 }
 
