@@ -8,6 +8,7 @@ var aCode = 65;
 var sCode = 83;
 var dCode = 68;
 var hCode = 72;
+var rCode = 82;
 var spaceCode = 32;
 
 //Timing variables
@@ -27,6 +28,9 @@ var GAME_OVER = 5;
 
 //current state of the game
 var gameState = MAIN_MENU;			
+
+//Local high score of the game
+var highScore = new Score(0);
 
 //Object that keeps track of players score
 var score = new Score(0);
@@ -338,6 +342,7 @@ function Score(initScore) {
   //display characteristics
   this.font = "bold 20px Ariel";
   this.fillStyle = "red";
+  this.textAlign = "start";
   
   //display location
   this.x = 260;
@@ -357,6 +362,7 @@ function Score(initScore) {
    */
   this.draw = function() {
      ctx.font = this.font;
+     ctx.textAlign = this.textAlign;
      ctx.fillStyle = this.fillStyle;
      ctx.fillText("Score: " + this.score, this.x, this.y);
   }
@@ -475,15 +481,36 @@ function onTimer() {
       break;
     case PAUSED: break;
     case GAME_OVER: 
-      finishGame();
+      runEnd();
       break;
     case DEFAULT:
       throw "Invalid Game State!";
   }
 }
 
+function resetGame(){
+  allObstacles = [];
+  mooses = [];
+  policeCar.x = 175;
+  policeCar.y = 200;
+  explosion.frame = 0;
 
-function finishGame() {
+}
+
+function runEnd() {
+  drawEnd();
+
+  if(keys[spaceCode]){
+    resetGame();
+    gameState = MAIN_MENU;
+  }
+  if(keys[rCode]){
+    resetGame();
+    gameState = IN_GAME;
+  }
+}
+
+function drawEnd() {
   redrawAll();
 
   Explosion_state = explosion.speed;
@@ -498,9 +525,14 @@ function finishGame() {
       console.log("ExplosionState:"+Explosion_state);
     } 
   }
-  ctx.font="18px sans-serif";
-  ctx.linewidth=1;
-  ctx.strokeText("Game Over", 200, 200);
+  ctx.fillStyle = "red";
+  ctx.font="60px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", 200, 200);
+
+  ctx.font="20px sans-serif";
+  ctx.fillText("Press space to go to the main menu", 200, 300);
+  ctx.fillText("Press R to restart", 200, 320);
 }
 
 function continueGame() {
