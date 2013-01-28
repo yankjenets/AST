@@ -99,18 +99,28 @@ function spawnCar() {
   var x = randomInt(0, 400);
   var y = -100;
   var car;
-  speed = randomInt(1, 5);
-  switch (randomInt(0, 1)) {
+  switch (randomInt(0, 4)) {
     case 0:
       car = new Sprite("sprites/blue_car.png", "on", 0, x, y,
-                       blueCarCoords, 1, speed);
-      allObstacles.push([car, "drunk-car"]);
+                       blueCarCoords, 1, 3);
       break;
     case 1:
-      car = new Sprite("sprites/blue_car.png", "on", 0, x, y,
-                       blueCarCoords, 1, speed);
-      allObstacles.push([car, "sober-car"]);
+      car = new Sprite("sprites/grey_car.png", "on", 0, x, y,
+                       greyCarCoords, 1, 2);
       break;
+    case 2:
+      car = new Sprite("sprites/truck.png", "on", 0, x, y,
+                       truckCoords, 1, 1);
+      break;
+    default:
+      car = new Sprite("sprites/yellow_car.png", "on", 0, x, y,
+                       yellowCarCoords, 1, 4);
+      break;
+  }
+  if(randomInt(0, 3) == 2) {
+    allObstacles.push([car, "drunk-car"]);
+  } else {
+    allObstacles.push([car, "sober-car"]);
   }
 }
 
