@@ -553,7 +553,7 @@ function drawEnd() {
 }
 
 function continueGame() {
-  if(frame % 100 == 0) {
+  if(frame % (100 - (5 * delta)) == 0) {
     spawnMoose();
   }
   updateStationary();
