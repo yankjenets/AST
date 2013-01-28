@@ -30,7 +30,7 @@ var GAME_OVER = 5;
 var gameState = MAIN_MENU;			
 
 //Local high score of the game
-var highScore = new Score(0);
+var highScore = 0;
 
 //Object that keeps track of players score
 var score = new Score(0);
@@ -497,6 +497,7 @@ function resetGame(){
   policeCar.x = 175;
   policeCar.y = 200;
   explosion.frame = 0;
+  score.score = 0;
 
 }
 
