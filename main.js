@@ -16,8 +16,11 @@ var intervalId;
 var timerDelay = 16.67;   //60 fps
 var frame = 0;
 
+//Determines how long the game has been running
+var gameCounter = 0;
+
 //Controls how fast the game is going
-var delta = 3;	
+var delta = 1;	
 
 //Game state constants
 var MAIN_MENU = 1;
@@ -253,11 +256,11 @@ function RoadLines(numLines) {
   /* numLines determines how many are on the road to start
    * twice as many are in the container so that scrolling appears continuous
    */
-  this.lines = new Array(2 * numLines);
+  this.lines = new Array(3 * numLines);
 
   //populates lines array
-  for (var i = 0; i < 2 * numLines; i++) {
-    this.lines[i] = new Line(185, -600 + (100*i));
+  for (var i = 0; i < 3 * numLines; i++) {
+    this.lines[i] = new Line(185, -1200 + (100*i));
   }
 
   /* update()
@@ -265,7 +268,7 @@ function RoadLines(numLines) {
    * updates container by updating each individual line
    */
   this.update = function() {
-    for (var i = 0; i < 2 * numLines; i++) {
+    for (var i = 0; i < 3 * numLines; i++) {
       this.lines[i].update(delta);
     }
   };
@@ -275,7 +278,7 @@ function RoadLines(numLines) {
    * draws all roadLines by drawing each individual one
    */
   this.drawLines = function() {
-    for (var i = 0; i < 2 * numLines; i++) {
+    for (var i = 0; i < 3 * numLines; i++) {
       this.lines[i].drawLine();
     }
   };
@@ -347,6 +350,14 @@ function Score(initScore) {
   //display location
   this.x = 260;
   this.y = canvas.height - 5;
+  
+  /* reset()
+   *
+   * resets the score to 0
+   */
+  this.reset = function() {
+    this.score = 0;
+  }
   
   /* update()
    *
@@ -497,7 +508,9 @@ function resetGame(){
   policeCar.x = 175;
   policeCar.y = 200;
   explosion.frame = 0;
-
+  delta = 1;
+  gameCounter = 0;
+  score.reset();
 }
 
 function runEnd() {
@@ -507,8 +520,7 @@ function runEnd() {
     resetGame();
     gameState = MAIN_MENU;
     keys[spaceCode] = 0;
-  }
-  if(keys[rCode]){
+  } else if(keys[rCode]){
     resetGame();
     gameState = IN_GAME;
     keys[rCode] = 0;
@@ -551,6 +563,13 @@ function continueGame() {
   if(frame % 10 == 0) {
     updateMooses();
   }
+  
+  if (gameCounter <= 3000) {
+    gameCounter++;
+    console.log(gameCounter);
+  }
+  
+  delta = Math.floor(gameCounter / 300) + 1;
 
   redrawAll();
   frame++;
