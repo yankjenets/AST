@@ -91,7 +91,6 @@ function spawnMoose() {
   var speed = randomInt(8, 15);
   var moose = new Sprite("sprites/moose_walk.png", state, 0, x, y,
                          mooseCoords, 3, speed);
-  mooses.push(moose);
   allObstacles.push([moose, "moose"]);
 };
 
@@ -293,7 +292,53 @@ function checkDrunkCollisions(sprite){
   }
 }
 
-////////////////////////////////////
+/* checkMooseCollisions()
+ *
+ * Checks to see if two moose collide. If so, turn both around.
+ */
+function checkMooseCollisions() {
+  var ob1;
+  var ob2;
+  
+  for (var i = 0; i < allObstacles.length; i++) {
+    if (allObstacles[i][1] === "moose") {
+      ob1 = allObstacles[i][0];
+  
+      for (var j = i+1; j < allObstacles.length; j++) {
+        if (allObstacles[j][1] === "moose") {
+          ob2 = allObstacles[j][0];
+        
+          if (clboxIntersect(ob1, ob2, 0)) {
+            turnMooseAround(ob1);
+            turnMooseAround(ob2);
+          }
+        }  
+      }
+    }
+  }
+}
+
+/* turnMooseAround(ob)
+ *
+ * Changes the direction of ob and moves it changeDis to avoid another collision
+ */
+function turnMooseAround(ob) {
+  var changeDis = 10
+
+  if (ob.state === "up") {
+    ob.state = "down";
+    ob.y += changeDis;
+  } else if (ob.state === "down") {
+    ob.state = "up";
+    ob.y -= changeDis;
+  } else if (ob.state === "left") {
+    ob.state = "right";
+    ob.x += changeDis;
+  } else {
+    ob.state = "left";
+    ob.x -= changeDis;
+  }
+}
 
 ////////////////////////////////////
 /** Scrolling background objects **/
@@ -569,7 +614,6 @@ function onTimer() {
 
 function resetGame(){
   allObstacles = [];
-  mooses = [];
   policeCar.x = 175;
   policeCar.y = 200;
   explosion.frame = 0;
@@ -616,15 +660,14 @@ function drawEnd() {
   ctx.textAlign = "center";
   ctx.fillText("Game Over", 200, 200);
 
-  var scoreTodraw = highscore;
   if(score.score > highscore){
-    scoreTodraw = score.score;
+    highscore = score.score;
     ctx.font="40px sans-serif";
     ctx.fillText("New HighScore!!!!", 200, 240);
   }
   
   ctx.font="30px sans-serif";
-  ctx.fillText("HighScore: "+scoreTodraw, 200, 280);
+  ctx.fillText("HighScore: "+ highscore, 200, 280);
 
   ctx.font="20px sans-serif";
   ctx.fillText("Press space to go to the main menu", 200, 330);
@@ -640,6 +683,7 @@ function continueGame() {
   roadLines.update();
   score.update();
   updatePoliceCar();
+  checkMooseCollisions();
   updateObstacles();
   checkDrunkCollisions(policeCar);
 
