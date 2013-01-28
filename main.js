@@ -20,7 +20,7 @@ var frame = 0;
 var gameCounter = 0;
 
 //Controls how fast the game is going
-var delta = 1;	
+var delta = 1;
 
 //Game state constants
 var MAIN_MENU = 1;
@@ -30,7 +30,7 @@ var PAUSED = 4;
 var GAME_OVER = 5;
 
 //current state of the game
-var gameState = MAIN_MENU;			
+var gameState = MAIN_MENU;
 
 //Local high score of the game
 var highscore = 0;
@@ -41,6 +41,7 @@ var score = new Score(0);
 //Objects within the game
 var allObstacles = [];
 var mooses = [];
+var enemyCars = [];
 var roadLines = new RoadLines(6);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
                            policeCoords, 1, 3);
@@ -91,8 +92,37 @@ function spawnMoose() {
   var moose = new Sprite("sprites/moose_walk.png", state, 0, x, y,
                          mooseCoords, 3, speed);
   mooses.push(moose);
-  allObstacles.push(moose);
+  allObstacles.push([moose, "moose"]);
 };
+
+function spawnCar() {
+  var x = randomInt(0, 400);
+  var y = -100;
+  var car;
+  switch (randomInt(0, 4)) {
+    case 0:
+      car = new Sprite("sprites/blue_car.png", "on", 0, x, y,
+                       blueCarCoords, 1, 3);
+      break;
+    case 1:
+      car = new Sprite("sprites/grey_car.png", "on", 0, x, y,
+                       greyCarCoords, 1, 2);
+      break;
+    case 2:
+      car = new Sprite("sprites/truck.png", "on", 0, x, y,
+                       truckCoords, 1, 1);
+      break;
+    default:
+      car = new Sprite("sprites/yellow_car.png", "on", 0, x, y,
+                       yellowCarCoords, 1, 4);
+      break;
+  }
+  if(randomInt(0, 3) == 2) {
+    allObstacles.push([car, "drunk-car"]);
+  } else {
+    allObstacles.push([car, "sober-car"]);
+  }
+}
 
 /* Sprite(src, state, frame, x, y, coords, numFrames, speed)
  *
@@ -100,42 +130,55 @@ function spawnMoose() {
  * Creates a sprite object with the attributes passed in
  * Sprite objects are used for in-game animations
  */
-function Sprite(src, state, frame, x, y, coords, numFrames, speed) {
+function Sprite(src, state, frame1, x, y, coords, numFrames, speed) {
   this.image = new Image();
   this.image.src = src;
   this.state = state;
-  this.frame = frame;
+  this.frame = frame1;
   this.x = x;
   this.y = y
   this.coords = coords;
   this.numFrames = numFrames;
   this.speed = speed;
+  this.createdOn = frame;
 }
 
-function updateMooses() {
+function updateObstacles() {
   var i;
-  for(i = mooses.length - 1; i >= 0; i--) {
-    if(mooses[i].x < -100 ||
-       mooses[i].x > canvas.width + 100 ||
-       mooses[i].y > canvas.height + 100) {
-      mooses.splice(i, 1);
+  for(i = allObstacles.length - 1; i >= 0; i--) {
+    var ob = allObstacles[i];
+    if(ob[0].x < -100 ||
+       ob[0].x > canvas.width + 100 ||
+       ob[0].y > canvas.height + 100) {
+      allObstacles.splice(i, 1);
       continue;
     }
-    switch(mooses[i].state) {
-      case "down":
-        mooses[i].y += mooses[i].speed;
-        break;
-      case "up":
-        mooses[i].y -= mooses[i].speed;
-        break;
-      case "right":
-        mooses[i].x += mooses[i].speed;
-        break;
-      case "left":
-        mooses[i].x -= mooses[i].speed;
-        break;
+    if(ob[1] == "moose") {
+      if(frame % 10 == 0) {
+        switch(ob[0].state) {
+          case "down":
+            ob[0].y += ob[0].speed;
+            break;
+          case "up":
+            ob[0].y -= ob[0].speed;
+            break;
+          case "right":
+            ob[0].x += ob[0].speed;
+            break;
+          case "left":
+            ob[0].x -= ob[0].speed;
+            break;
+        }
+        ob[0].frame = (ob[0].frame + 1) % ob[0].numFrames;
+      }
+    } else if(ob[1] == "sober-car") {
+      ob[0].y += ob[0].speed;
+      ob[0].frame = (ob[0].frame + 1) % ob[0].numFrames;
+    } else if(ob[1] == "drunk-car") {
+      ob[0].y += ob[0].speed;
+      ob[0].x += 2 * Math.sin((frame - ob[0].createdOn) / 10);
+      ob[0].frame = (ob[0].frame + 1) % ob[0].numFrames;
     }
-    mooses[i].frame = (mooses[i].frame + 1) % mooses[i].numFrames;
   }
 }
 
@@ -152,7 +195,7 @@ function updatePoliceCar() {
     policeCar.x -= policeCar.speed;
   }
   if(keys[sCode]) {
-    if (policeCar.y < canvas.height - h - 5)
+    if (policeCar.y < canvas.height - h - 30)
       policeCar.y += policeCar.speed;
   }
   if(keys[dCode]) {
@@ -164,7 +207,7 @@ function updatePoliceCar() {
   } else {
     policeCar.state = "off";
   }
-  
+
   if(policeCar.state == "on") {
     if(sirenBar.percent > 0) {
       sirenBar.percent -= 0.01;
@@ -177,7 +220,7 @@ function updatePoliceCar() {
     }
   } else {
     if(sirenBar.percent < 1) {
-      sirenBar.percent += 0.01;
+      sirenBar.percent += 0.002;
     }
     policeCar.speed = 3;
     policeCar.frame = 0;
@@ -189,17 +232,20 @@ function updatePoliceCar() {
 // ****************************
 
 //Returns true if 2 sprites intersect
-function clboxIntersect(sprite1, sprite2){
+function clboxIntersect(sprite1, sprite2, offset) {
+  console.log(offset);
+  if(offset > 0) {
+  }
   var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
   var coords2 = sprite2.coords[sprite2.state][sprite2.frame];
   var sp1_right = sprite1.x + coords1.w;
   var sp1_bottom = sprite1.y + coords1.h;
-  var sp2_right = sprite2.x + coords2.w; 
-  var sp2_bottom = sprite2.y + coords2.h;
+  var sp2_right = sprite2.x + coords2.w;
+  var sp2_bottom = sprite2.y + coords2.h + offset;
 
-  
+
   return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
-          sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
+          sprite1.y > sp2_bottom || sp1_bottom < (sprite2.y + offset));
 }
 
 //Just for debugging
@@ -217,21 +263,34 @@ function drawExplosion(sprite, exp_sprite){
   exp_sprite.y = sprite.y;
 
   var coords = exp_sprite.coords[exp_sprite.state][exp_sprite.frame];
-  console.log("Exp_coords.x"+coords.x+" Exp_coords.y:"+coords.y);
+  //console.log("Exp_coords.x"+coords.x+" Exp_coords.y:"+coords.y);
 
   ctx.drawImage(exp_sprite.image, coords.x, coords.y, coords.w, coords.h,
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
 
-//Runs through allObjects to check if they hit police car
+//Runs through allObstacles to check if they hit police car
 function checkCollisions(sprite){
   var i;
   for(i = 0; i < allObstacles.length; i++) {
-    if(clboxIntersect(sprite, allObstacles[i])) {
+    if(clboxIntersect(sprite, allObstacles[i][0], 0)) {
       return true;
     }
   }
   return false;
+}
+
+function checkDrunkCollisions(sprite){
+  var i;
+  for(i = allObstacles.length - 1; i >= 0; i--) {
+    var ob = allObstacles[i][0];
+    if((policeCar.state == "on") &&
+       (allObstacles[i][1] == "drunk-car") &&
+       (clboxIntersect(sprite, ob, ob.coords[ob.state][ob.frame].h))) {
+      allObstacles.splice(i, 1);
+      score.score += 100;
+    }
+  }
 }
 
 ////////////////////////////////////
@@ -243,12 +302,12 @@ function checkCollisions(sprite){
 function updateStationary() {
   var i;
   for(i = 0; i < allObstacles.length; i++) {
-    allObstacles[i].y += delta;
+    allObstacles[i][0].y += delta;
   }
 }
 
 /* RoadLines(numLines)
- * 
+ *
  * CONSTRUCTOR
  * Creates a container that contains 2*numLines Line objects
  */
@@ -295,11 +354,11 @@ function Line(x, y) {
   //Initial coordinates
   this.startx = x;
   this.starty = y;
-  
+
   //Current coordinates
   this.livex = x;
   this.livey = y;
-  
+
   //State of the scrolling animation
   this.state = 0;
 
@@ -341,16 +400,16 @@ function Line(x, y) {
  */
 function Score(initScore) {
   this.score = initScore;
-  
+
   //display characteristics
   this.font = "bold 20px Ariel";
   this.fillStyle = "red";
   this.textAlign = "start";
-  
+
   //display location
   this.x = 260;
   this.y = canvas.height - 5;
-  
+
   /* reset()
    *
    * resets the score to 0
@@ -358,7 +417,7 @@ function Score(initScore) {
   this.reset = function() {
     this.score = 0;
   }
-  
+
   /* update()
    *
    * updates score by adding delta to it
@@ -366,7 +425,7 @@ function Score(initScore) {
   this.update = function() {
     this.score += delta;
   }
-  
+
   /* draw()
    *
    * Fills text to display score using the display characteristics and location
@@ -386,9 +445,6 @@ function draw(sprite) {
   var scale = 1;
   if(arguments.length > 1) {
     scale = arguments[1];
-  }
-  if(!sprite.coords[sprite.state]) {
-    console.log(sprite);
   }
   var coords = sprite.coords[sprite.state][sprite.frame];
   //(sprite, srcx, srcy, srcw, srch, destx, desty, destw, desth)
@@ -429,7 +485,7 @@ function drawSpeed(){
  */
 function runMainMenu() {
   drawMainMenu();
-  
+
   if(keys[spaceCode]) {
     gameState = IN_GAME;
     keys[spaceCode] = 0;
@@ -455,7 +511,7 @@ function drawMainMenu() {
  */
 function runInstructions() {
   drawInstructions();
-  
+
   if(keys[spaceCode]) {
     gameState = IN_GAME;
     keys[spaceCode] = 0;
@@ -473,11 +529,11 @@ function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRoad();
   roadLines.drawLines();
-  drawSirenBar();
   draw(policeCar);
-  for(i = 0; i < mooses.length; i++) {
-    draw(mooses[i]);
+  for(i = 0; i < allObstacles.length; i++) {
+    draw(allObstacles[i][0]);
   }
+  drawSirenBar();
   score.draw();
   drawSpeed();
 }
@@ -486,24 +542,24 @@ function redrawAll() {
 //Start the main game methods
 //***********************************
 
-/* onTimer() 
+/* onTimer()
  *
  * At each interval, the state of the game is checked and the appropriate
- * function is called. 
+ * function is called.
  */
-function onTimer() { 
+function onTimer() {
   switch(gameState) {
-    case MAIN_MENU: 
+    case MAIN_MENU:
       runMainMenu();
       break;
-    case INSTRUCTIONS: 
+    case INSTRUCTIONS:
       runInstructions();
       break;
-    case IN_GAME:  
-      continueGame(); 
+    case IN_GAME:
+      continueGame();
       break;
     case PAUSED: break;
-    case GAME_OVER: 
+    case GAME_OVER:
       runEnd();
       break;
     case DEFAULT:
@@ -523,6 +579,7 @@ function resetGame(){
     highscore = score.score;
   }
   score.reset();
+  sirenBar.percent = 1;
 }
 
 function runEnd() {
@@ -551,8 +608,8 @@ function drawEnd() {
     else {
       drawExplosion(policeCar, explosion);
       explosion.speed++;
-      console.log("ExplosionState:"+Explosion_state);
-    } 
+      //console.log("ExplosionState:"+Explosion_state);
+    }
   }
   ctx.fillStyle = "blue";
   ctx.font="60px sans-serif";
@@ -575,31 +632,32 @@ function drawEnd() {
 }
 
 function continueGame() {
-  if(frame % 100 == 0) {
+  if(frame % (100 - (5 * delta)) == 0) {
     spawnMoose();
+    spawnCar();
   }
   updateStationary();
   roadLines.update();
   score.update();
   updatePoliceCar();
-  if(frame % 10 == 0) {
-    updateMooses();
-  }
-  
+  updateObstacles();
+  checkDrunkCollisions(policeCar);
+
   if (gameCounter <= 3000) {
     gameCounter++;
     console.log(gameCounter);
   }
-  
+
   delta = Math.floor(gameCounter / 300) + 1;
 
   redrawAll();
   frame++;
-  console.log("Collisions:"+checkCollisions(policeCar));
+  //console.log("Collisions:"+checkCollisions(policeCar));
   if (checkCollisions(policeCar)) {
     gameState = GAME_OVER;
+    keys[spaceCode] = 0;
   }
-  console.log("GameState:"+gameState);
+  //console.log("GameState:"+gameState);
 }
 
 function onKeyDown(event) {
