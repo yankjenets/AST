@@ -152,7 +152,7 @@ function updatePoliceCar() {
     policeCar.x -= policeCar.speed;
   }
   if(keys[sCode]) {
-    if (policeCar.y < canvas.height - h - 5)
+    if (policeCar.y < canvas.height - h - 30)
       policeCar.y += policeCar.speed;
   }
   if(keys[dCode]) {
@@ -465,11 +465,11 @@ function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRoad();
   roadLines.drawLines();
-  drawSirenBar();
   draw(policeCar);
   for(i = 0; i < mooses.length; i++) {
     draw(mooses[i]);
   }
+  drawSirenBar();
   score.draw();
 }
 
