@@ -181,6 +181,7 @@ function updatePoliceCar() {
 // Collision Box Objects
 // ****************************
 
+//Returns true if 2 sprites intersect
 function clboxIntersect(sprite1, sprite2){
   var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
   var coords2 = sprite2.coords[sprite2.state][sprite2.frame];
@@ -194,12 +195,14 @@ function clboxIntersect(sprite1, sprite2){
           sprite1.y > sp2_bottom || sp1_bottom < sprite2.y);
 }
 
+//Just for debugging
 function drawClbox(box){
   var coords = box.coords[box.state][box.frame];
   ctx.strokestyle = "FF0000";
   ctx.strokeRect(box.x, box.y, box.coords.w, box.coords.h);
 }
 
+//Explosion drawn on car if it hits any obstacles
 function drawExplosion(sprite, exp_sprite){
   //exp_sprite.x = Math.floor((sprite.x+sprite.coords.h)/2);
   //exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
@@ -213,10 +216,11 @@ function drawExplosion(sprite, exp_sprite){
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
 
+//Runs through allObjects to check if they hit police car
 function checkCollisions(sprite){
   var i;
-  for(i = 0; i < mooses.length; i++) {
-    if(clboxIntersect(sprite, mooses[i])) {
+  for(i = 0; i < allObstacles.length; i++) {
+    if(clboxIntersect(sprite, allObstacles[i])) {
       return true;
     }
   }
@@ -413,20 +417,9 @@ function runMainMenu() {
  * Draws the main menu graphics and text
  */
 function drawMainMenu() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.fillStyle = "navy";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
   var mainImage = new Image();
-  mainImage.src = "sprites/title.jpg";
-  ctx.drawImage(mainImage, 50, 50);
-  
-  ctx.fillStyle = "white";
-  ctx.font = "bold italic 34px impact";
-  
-  ctx.fillText("Press H for Instructions", 30, canvas.height - 57);
-  ctx.fillText("Press the Spacebar to play", 6, canvas.height - 7);
+  mainImage.src = "sprites/AST_menu.png";
+  ctx.drawImage(mainImage, 0, 0);
 }
 
 /* runInstructions()
@@ -442,28 +435,9 @@ function runInstructions() {
 }
 
 function drawInstructions() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.fillStyle = "navy";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.fillStyle = "white";
-  ctx.font = "bold 40px impact";
-  ctx.fillText("INSTRUCTIONS", 75, 50);
-   
-  ctx.font = "25px impact";
-  ctx.fillText("Forward - Back", 125, 120);
-  ctx.fillText("Left - Right", 142, 150);
-  
-  var keysImage = new Image();
-  keysImage.src = "sprites/keys_wasd.png";
-  ctx.drawImage(keysImage, 8, 160);
-  
-  ctx.font = "23px impact";
-  ctx.fillText("Use SPACEBAR to pull over drunk drivers.", 8, 435);
-  
-  ctx.font = "bold italic 34px impact";
-  ctx.fillText("Press the Spacebar to play", 6, canvas.height - 7);
+  var main_img = new Image();
+  main_img.src = "sprites/AST_instructions.png";
+  ctx.drawImage(main_img, 0, 0);
 }
 
 function redrawAll() {
