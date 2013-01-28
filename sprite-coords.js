@@ -46,3 +46,7 @@ explosionCoords["on"][4] = {"x":266, "y":6, "w":47, "h":63};
 explosionCoords["on"][5] = {"x":322, "y":7, "w":48, "h":62};
 explosionCoords["on"][6] = {"x":383, "y":6, "w":48, "h":63};
 explosionCoords["on"][7] = {"x":445, "y":6, "w":41, "h":55};
+
+var blueCarCoords = new Object();
+blueCarCoords["on"] = new Object();
+blueCarCoords["on"][0] = {"x":0, "y":0, "w":42, "h":78};
