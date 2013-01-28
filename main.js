@@ -341,8 +341,6 @@ function turnMooseAround(ob) {
 }
 
 ////////////////////////////////////
-
-////////////////////////////////////
 /** Scrolling background objects **/
 ////////////////////////////////////
 
@@ -662,15 +660,14 @@ function drawEnd() {
   ctx.textAlign = "center";
   ctx.fillText("Game Over", 200, 200);
 
-  var scoreTodraw = highscore;
   if(score.score > highscore){
-    scoreTodraw = score.score;
+    highscore = score.score;
     ctx.font="40px sans-serif";
     ctx.fillText("New HighScore!!!!", 200, 240);
   }
   
   ctx.font="30px sans-serif";
-  ctx.fillText("HighScore: "+scoreTodraw, 200, 280);
+  ctx.fillText("HighScore: "+ highscore, 200, 280);
 
   ctx.font="20px sans-serif";
   ctx.fillText("Press space to go to the main menu", 200, 330);
