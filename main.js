@@ -252,7 +252,7 @@ function updatePoliceCar() {
 
 function updateExplodeCars() {
   for(var i = 0; i < explodeCars.length; i++) {
-    if(explodeCars[i][0].speed >= 80) {
+    if(explodeCars[i][0].speed >= 79) {
       explodeCars.splice(i, 1);
     } else {
       explodeCars[i][0].speed++;
@@ -349,56 +349,41 @@ function checkObstacleCollisions() {
   var ob2;
 
   for (var i = 0; i < allObstacles.length; i++) {
-    if (allObstacles[i][1] === "moose") {
-      ob1 = allObstacles[i][0];
+    ob1 = allObstacles[i];
 
-      for (var j = i+1; j < allObstacles.length; j++) {
-        if (allObstacles[j][1] === "moose") {
-          ob2 = allObstacles[j][0];
+    for (var j = i+1; j < allObstacles.length; j++) {
+      ob2 = allObstacles[j];
 
-          if (clboxIntersect(ob1, ob2, 0)) {
-            if (ob1.state !== ob2.state) {
-              turnMooseAround(ob1);
-              ob1 = allObstacles[i];
+      if (clboxIntersect(ob1[0], ob2[0], 0)) {
+        if (ob1[1] === "moose" && ob2[1] === "moose") {
+          if (ob1.state !== ob2.state) {
+            turnMooseAround(ob1[0]);
+          }
+          turnMooseAround(ob2[0]);
+        } else {
+          if (ob1[1] !== "moose") {
+            ob1[0].speed = 0;
+            ob1[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                 explosionCoords, 8, 0);
+            explodeCars.push(ob1);
+            allObstacles.splice(i, 1);
 
-              for (var j = i+1; j < allObstacles.length; j++) {
-                ob2 = allObstacles[j];
-
-                if (clboxIntersect(ob1[0], ob2[0], 0)) {
-                  if (ob1[1] === "moose" && ob2[1] === "moose") {
-                    if (ob1.state !== ob2.state) {
-                      turnMooseAround(ob1[0]);
-                    }
-                    turnMooseAround(ob2[0]);
-                  } else {
-                    if (ob1[1] !== "moose") {
-                      ob1[0].speed = 0;
-                      ob1[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                      explodeCars.push(ob1);
-                      allObstacles.splice(i, 1);
-
-                      if (ob2[1] !== "moose") {
-                        ob2[0].speed = 0;
-                        ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                        explodeCars.push(ob2);
-                        allObstacles.splice(j-1, 1);
-                      } else {
-                        turnMooseAround(ob2[0]);
-                      }
-                    } else if (ob2[1] !== "moose") {
-                      ob2[0].speed = 0;
-                      ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                      explodeCars.push(ob2);
-                      allObstacles.splice(j, 1);
-                      turnMooseAround(ob1[0]);
-                    }
-                  }
-                }
-              }
+            if (ob2[1] !== "moose") {
+              ob2[0].speed = 0;
+              ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                   explosionCoords, 8, 0);
+              explodeCars.push(ob2);
+              allObstacles.splice(j-1, 1);
+            } else {
+              turnMooseAround(ob2[0]);
             }
+          } else if (ob2[1] !== "moose") {
+              ob2[0].speed = 0;
+              ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                   explosionCoords, 8, 0);
+              explodeCars.push(ob2);
+              allObstacles.splice(j, 1);
+              turnMooseAround(ob1[0]);
           }
         }
       }
