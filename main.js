@@ -262,12 +262,18 @@ function updatePoliceCar() {
 
 function updateExplodeCars() {
   for(var i = 0; i < explodeCars.length; i++) {
-    if(explodeCars[i][0].speed >= 79) {
-      explodeCars.splice(i, 1);
+    explodeCars[i][0].speed++;
+    
+    if(explodeCars[i][0].speed > 79) {
+      explodeCars[i][2].state = "off";
+      explodeCars[i][2].frame = Math.floor(((explodeCars[i][0].speed - 80) % 30) / 10);
     } else {
-      explodeCars[i][0].speed++;
       explodeCars[i][2].frame = Math.floor(explodeCars[i][0].speed / 10);
-      drawExplosion(explodeCars[i][0], explodeCars[i][2]);
+    }
+    drawExplosion(explodeCars[i][0], explodeCars[i][2]);
+    
+    if (explodeCars[i][0].y > 600) {
+      explodeCars.splice(i, 1);
     }
   }
 }
