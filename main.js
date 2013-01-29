@@ -58,7 +58,7 @@ var enemyCars = [];
 var bonusScores = [];
 var handcuffs = [];
 var roadLines = new RoadLines(6);
-var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
+var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 400,
                            policeCoords, 1, 3);
 var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
                            explosionCoords, 8, 0);
@@ -312,10 +312,9 @@ function checkDrunkCollisions(sprite){
       multiplier += 1;
       bonusScores.push([ob.x, ob.y, 100, "+" + difficulty * 500 * multiplier]);
       bonusScores.push([ob.x, ob.y - 20, 100, "x" + multiplier]);
-      allObstacles.splice(i, 1);
       score.score += difficulty * 500 * multiplier;
       drawHandcuffs(allObstacles[i][0].x, allObstacles[i][0].y);
-      console.log("Cuffs.x = " + allObstacles[i][0].x);
+      allObstacles.splice(i, 1);
     }
   }
 }
@@ -581,7 +580,7 @@ function drawHandcuffs(x, y){
   var cuffs = new Sprite("sprites/handcuffs.png", "on", 0, new_x, new_y, cuffCords, 1, 0);
   draw(cuffs);
   handcuffs.push(cuffs);
-  console.log("handcuffs="+handcuffs[0].x);
+  //console.log("handcuffs="+handcuffs[0].x);
 }
 
 /* updateHandcuffs()
@@ -733,7 +732,7 @@ function onTimer() {
 function resetGame(){
   allObstacles = [];
   policeCar.x = 175;
-  policeCar.y = 200;
+  policeCar.y = 400;
   explosion.frame = 0;
   delta = 1;
   gameCounter = 0;
@@ -742,6 +741,7 @@ function resetGame(){
   }
   score.reset();
   sirenBar.percent = 1;
+  multiplier = 0;
 }
 
 function runEnd() {
