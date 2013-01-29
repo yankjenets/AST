@@ -24,16 +24,16 @@ var policeCoords = new Object();
 policeCoords["off"] = new Object();
 policeCoords["on"] = new Object();
 
-policeCoords["off"][0] = {"x":0, "y":0, "w":42, "h":78};
+policeCoords["off"][0] = {"x":3, "y":0, "w":36, "h":78};
 
 policeCoords["on"][0] = policeCoords["off"][0]
-policeCoords["on"][1] = {"x":0, "y":128, "w":42, "h":78};
-policeCoords["on"][2] = {"x":0, "y":256, "w":42, "h":78};
-policeCoords["on"][3] = {"x":0, "y":384, "w":42, "h":78};
-policeCoords["on"][4] = {"x":0, "y":512, "w":42, "h":78};
-policeCoords["on"][5] = {"x":0, "y":640, "w":42, "h":78};
-policeCoords["on"][6] = {"x":0, "y":768, "w":42, "h":78};
-policeCoords["on"][7] = {"x":0, "y":896, "w":42, "h":78};
+policeCoords["on"][1] = {"x":3, "y":128, "w":36, "h":78};
+policeCoords["on"][2] = {"x":3, "y":256, "w":36, "h":78};
+policeCoords["on"][3] = {"x":3, "y":384, "w":36, "h":78};
+policeCoords["on"][4] = {"x":3, "y":512, "w":36, "h":78};
+policeCoords["on"][5] = {"x":3, "y":640, "w":36, "h":78};
+policeCoords["on"][6] = {"x":3, "y":768, "w":36, "h":78};
+policeCoords["on"][7] = {"x":3, "y":896, "w":36, "h":78};
 
 var explosionCoords = new Object();
 explosionCoords["on"] = new Object();
