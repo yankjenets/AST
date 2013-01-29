@@ -56,6 +56,7 @@ var allObstacles = [];
 var mooses = [];
 var enemyCars = [];
 var bonusScores = [];
+var explodeCars = [];
 var handcuffs = [];
 var trees = new Tree_List(15);
 var roadLines = new RoadLines(7);
@@ -249,6 +250,18 @@ function updatePoliceCar() {
   }
 }
 
+function updateExplodeCars() {
+  for(var i = 0; i < explodeCars.length; i++) {
+    if(explodeCars[i][0].speed >= 80) {
+      explodeCars.splice(i, 1);
+    } else {
+      explodeCars[i][0].speed++;
+      explodeCars[i][2].frame = Math.floor(explodeCars[i][0].speed / 10);
+      drawExplosion(explodeCars[i][0], explodeCars[i][2]);
+    }
+  }
+}
+
 //*****************************
 // Collision Box Objects
 // ****************************
@@ -280,6 +293,7 @@ function drawExplosion(sprite, exp_sprite){
   exp_sprite.y = sprite.y;
 
   var coords = exp_sprite.coords[exp_sprite.state][exp_sprite.frame];
+
   ctx.drawImage(exp_sprite.image, coords.x, coords.y, coords.w, coords.h,
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
@@ -292,6 +306,12 @@ function checkCollisions(sprite){
   var i;
   for(i = 0; i < allObstacles.length; i++) {
     if(clboxIntersect(sprite, allObstacles[i][0], 0)) {
+      return true;
+    }
+  }
+  
+  for(i = 0; i < explodeCars.length; i++) {
+    if(clboxIntersect(sprite, explodeCars[i][0], 0)) {
       return true;
     }
   }
@@ -324,7 +344,7 @@ function checkDrunkCollisions(sprite){
  *
  * Checks to see if two moose collide. If so, turn both around.
  */
-function checkMooseCollisions() {
+function checkObstacleCollisions() {
   var ob1;
   var ob2;
 
@@ -339,8 +359,41 @@ function checkMooseCollisions() {
           if (clboxIntersect(ob1, ob2, 0)) {
             if (ob1.state !== ob2.state) {
               turnMooseAround(ob1);
+    ob1 = allObstacles[i];
+  
+    for (var j = i+1; j < allObstacles.length; j++) {
+      ob2 = allObstacles[j];
+        
+      if (clboxIntersect(ob1[0], ob2[0], 0)) {
+        if (ob1[1] === "moose" && ob2[1] === "moose") {
+          if (ob1.state !== ob2.state) {
+            turnMooseAround(ob1[0]);
+          }
+          turnMooseAround(ob2[0]);
+        } else {
+          if (ob1[1] !== "moose") {
+            ob1[0].speed = 0;
+            ob1[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                           explosionCoords, 8, 0);
+            explodeCars.push(ob1);
+            allObstacles.splice(i, 1);
+            
+            if (ob2[1] !== "moose") {
+            ob2[0].speed = 0;
+            ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                           explosionCoords, 8, 0);
+            explodeCars.push(ob2);
+            allObstacles.splice(j-1, 1);
+            } else {
+              turnMooseAround(ob2[0]);
             }
-            turnMooseAround(ob2);
+          } else if (ob2[1] !== "moose") {
+            ob2[0].speed = 0;
+            ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                           explosionCoords, 8, 0);
+            explodeCars.push(ob2);
+            allObstacles.splice(j, 1);
+            turnMooseAround(ob1[0]);
           }
         }
       }
@@ -427,6 +480,9 @@ function updateStationary() {
   var i;
   for(i = 0; i < allObstacles.length; i++) {
     allObstacles[i][0].y += delta;
+  }
+  for(i = 0; i < explodeCars.length; i++) {
+    explodeCars[i][0].y += delta;
   }
 }
 
@@ -738,6 +794,10 @@ function redrawAll() {
     draw(allObstacles[i][0]);
   }
   drawBonusScores();
+  for(i = 0; i < explodeCars.length; i++) {
+    draw(explodeCars[i][0]);
+  }
+  updateExplodeCars();
   updateHandcuffs();
   drawSirenBar();
   score.draw();
@@ -777,6 +837,7 @@ function onTimer() {
 
 function resetGame(){
   allObstacles = [];
+  explodeCars = [];
   policeCar.x = 175;
   policeCar.y = 400;
   explosion.frame = 0;
@@ -807,7 +868,6 @@ function runEnd() {
 function drawEnd() {
   redrawAll();
 
-  Explosion_state = explosion.speed;
   if(explosion.frame < 7){
     if(explosion.speed%10 == 9){
       explosion.frame = (explosion.frame + 1) % 8;
@@ -849,8 +909,8 @@ function continueGame() {
   score.update();
   trees.update(); 
   updatePoliceCar();
-  checkMooseCollisions();
   updateObstacles();
+  checkObstacleCollisions();
   checkDrunkCollisions(policeCar);
 
   if (gameCounter <= 3000) {
