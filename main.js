@@ -320,7 +320,9 @@ function checkMooseCollisions() {
           ob2 = allObstacles[j][0];
         
           if (clboxIntersect(ob1, ob2, 0)) {
-            turnMooseAround(ob1);
+            if (ob1.state !== ob2.state) {
+              turnMooseAround(ob1);
+            }
             turnMooseAround(ob2);
           }
         }  
@@ -334,7 +336,7 @@ function checkMooseCollisions() {
  * Changes the direction of ob and moves it changeDis to avoid another collision
  */
 function turnMooseAround(ob) {
-  var changeDis = 10
+  var changeDis = 10;
 
   if (ob.state === "up") {
     ob.state = "down";
