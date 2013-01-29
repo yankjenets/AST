@@ -57,7 +57,8 @@ var mooses = [];
 var enemyCars = [];
 var bonusScores = [];
 var handcuffs = [];
-var roadLines = new RoadLines(6);
+var trees = new Tree_List(15);
+var roadLines = new RoadLines(7);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 400,
                            policeCoords, 1, 3);
 var explosion = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
@@ -373,6 +374,55 @@ function turnMooseAround(ob) {
 /** Scrolling background objects **/
 ////////////////////////////////////
 
+function Tree_List(numTrees){
+  this.image = new Image();
+  this.image.src = "sprites/tree.png";
+  this.trees = new Array(numTrees);
+
+  var i;
+  for(i=0; i<numTrees; i+=2){
+    this.trees[i] = new Tree(-20, (50*i));
+    this.trees[i+1] = new Tree(380, (50*i));
+  }
+
+  this.draw = function(){
+    for(var i=0; i<numTrees; i++)
+      this.trees[i].draw(this.image);
+  };
+
+  this.update = function(){
+    for(var i=0; i<numTrees; i++){
+      this.trees[i].update();
+    }
+  };
+
+}
+
+/* Tree(x, y)
+ *
+ * CONSTRUCTOR: Creates a new and simple tree object
+ */
+function Tree(x, y){
+
+  this.cur_x = x;
+  this.cur_y = y;
+
+
+  this.update = function(){
+    if(this.cur_y > 600){
+      this.cur_y = -100;
+    }
+    this.cur_y += delta;
+  };
+
+  this.draw = function(img){
+    ctx.drawImage(img, this.cur_x, this.cur_y);
+  }
+}
+/* updateStationary()
+ *
+ * updates cars and mooses to move with respect to road. 
+ */
 function updateStationary() {
   var i;
   for(i = 0; i < allObstacles.length; i++) {
@@ -389,11 +439,11 @@ function RoadLines(numLines) {
   /* numLines determines how many are on the road to start
    * twice as many are in the container so that scrolling appears continuous
    */
-  this.lines = new Array(3 * numLines);
+  this.lines = new Array(numLines);
 
   //populates lines array
-  for (var i = 0; i < 3 * numLines; i++) {
-    this.lines[i] = new Line(185, -1200 + (100*i));
+  for (var i = 0; i < numLines; i++) {
+    this.lines[i] = new Line(185, (100*i));
   }
 
   /* update()
@@ -401,7 +451,7 @@ function RoadLines(numLines) {
    * updates container by updating each individual line
    */
   this.update = function() {
-    for (var i = 0; i < 3 * numLines; i++) {
+    for (var i = 0; i <  numLines; i++) {
       this.lines[i].update(delta);
     }
   };
@@ -411,7 +461,7 @@ function RoadLines(numLines) {
    * draws all roadLines by drawing each individual one
    */
   this.drawLines = function() {
-    for (var i = 0; i < 3 * numLines; i++) {
+    for (var i = 0; i <  numLines; i++) {
       this.lines[i].drawLine();
     }
   };
@@ -433,23 +483,19 @@ function Line(x, y) {
   this.livex = x;
   this.livey = y;
 
-  //State of the scrolling animation
-  this.state = 0;
-
   /* update(delta)
    *
    * Determines the new location of Line using its state
    */
   this.update = function(delta) {
-    if (this.state === 99) {
-      this.state = 0;
-    } else {
-      this.state++;
+    if (this.livey >= 600) {
+      this.livey = -100;
     }
 
 	//update coordinates
     this.livex = this.startx;
-    this.livey = this.starty + (this.state * delta);
+    this.livey += delta;
+    //this.livey = this.starty + (this.state * delta);
   };
 
   /* drawLine
@@ -580,7 +626,6 @@ function drawHandcuffs(x, y){
   var cuffs = new Sprite("sprites/handcuffs.png", "on", 0, new_x, new_y, cuffCords, 1, 0);
   draw(cuffs);
   handcuffs.push(cuffs);
-  //console.log("handcuffs="+handcuffs[0].x);
 }
 
 /* updateHandcuffs()
@@ -696,6 +741,7 @@ function redrawAll() {
   updateHandcuffs();
   drawSirenBar();
   score.draw();
+  trees.draw();
   drawDifficulty();
   drawSpeed();
 }
@@ -778,13 +824,15 @@ function drawEnd() {
   ctx.fillText("Game Over", 200, 200);
 
   if(score.score > highscore){
-    highscore = score.score;
     ctx.font="40px sans-serif";
     ctx.fillText("New HighScore!!!!", 200, 240);
+    ctx.font="30px sans-serif";
+    ctx.fillText("Old HighScore: "+ highscore, 200, 280);
   }
-
+  else{
   ctx.font="30px sans-serif";
   ctx.fillText("HighScore: "+ highscore, 200, 280);
+  }
 
   ctx.font="20px sans-serif";
   ctx.fillText("Press H to go to the main menu", 200, 330);
@@ -799,6 +847,7 @@ function continueGame() {
   updateStationary();
   roadLines.update();
   score.update();
+  trees.update(); 
   updatePoliceCar();
   checkMooseCollisions();
   updateObstacles();
