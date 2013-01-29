@@ -1,3 +1,13 @@
+/* Alaskan State Troopers - the Game
+ *
+ * Based off of the hit National Geographic television show.
+ *
+ * Designed and developed by:
+ * Daniel Deutsch - ddeutsch
+ * Tyler Healy - thealy
+ * Michael Hankowsky - mhankows
+ */
+
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
@@ -252,7 +262,7 @@ function updatePoliceCar() {
 
 function updateExplodeCars() {
   for(var i = 0; i < explodeCars.length; i++) {
-    if(explodeCars[i][0].speed >= 80) {
+    if(explodeCars[i][0].speed >= 79) {
       explodeCars.splice(i, 1);
     } else {
       explodeCars[i][0].speed++;
@@ -278,13 +288,6 @@ function clboxIntersect(sprite1, sprite2, offset) {
 
   return !(sprite1.x > sp2_right || sp1_right < sprite2.x ||
           sprite1.y > sp2_bottom || sp1_bottom < (sprite2.y + offset));
-}
-
-//Just for debugging
-function drawClbox(box){
-  var coords = box.coords[box.state][box.frame];
-  ctx.strokestyle = "FF0000";
-  ctx.strokeRect(box.x, box.y, box.coords.w, box.coords.h);
 }
 
 //Explosion drawn on car if it hits any obstacles
@@ -349,55 +352,53 @@ function checkObstacleCollisions() {
   var ob2;
 
   for (var i = 0; i < allObstacles.length; i++) {
-    if (allObstacles[i][1] === "moose") {
-      ob1 = allObstacles[i][0];
+    ob1 = allObstacles[i];
 
-      for (var j = i+1; j < allObstacles.length; j++) {
-        if (allObstacles[j][1] === "moose") {
-          ob2 = allObstacles[j][0];
+    for (var j = i+1; j < allObstacles.length; j++) {
+      ob2 = allObstacles[j];
 
-          if (clboxIntersect(ob1, ob2, 0)) {
-            if (ob1.state !== ob2.state) {
-              turnMooseAround(ob1);
-              ob1 = allObstacles[i];
+      if (clboxIntersect(ob1[0], ob2[0], 0)) {
+        if (ob1[1] === "moose" && ob2[1] === "moose") {
+          if (ob1.state !== ob2.state) {
+            turnMooseAround(ob1[0]);
+          }
+          turnMooseAround(ob2[0]);
+        } else {
+          if (ob1[1] !== "moose") {
+            ob1[0].speed = 0;
+            ob1[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                 explosionCoords, 8, 0);
+            explodeCars.push(ob1);
+            allObstacles.splice(i, 1);
 
-              for (var j = i+1; j < allObstacles.length; j++) {
-                ob2 = allObstacles[j];
-
-                if (clboxIntersect(ob1[0], ob2[0], 0)) {
-                  if (ob1[1] === "moose" && ob2[1] === "moose") {
-                    if (ob1.state !== ob2.state) {
-                      turnMooseAround(ob1[0]);
-                    }
-                    turnMooseAround(ob2[0]);
-                  } else {
-                    if (ob1[1] !== "moose") {
-                      ob1[0].speed = 0;
-                      ob1[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                      explodeCars.push(ob1);
-                      allObstacles.splice(i, 1);
-
-                      if (ob2[1] !== "moose") {
-                        ob2[0].speed = 0;
-                        ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                        explodeCars.push(ob2);
-                        allObstacles.splice(j-1, 1);
-                      } else {
-                        turnMooseAround(ob2[0]);
-                      }
-                    } else if (ob2[1] !== "moose") {
-                      ob2[0].speed = 0;
-                      ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                     explosionCoords, 8, 0);
-                      explodeCars.push(ob2);
-                      allObstacles.splice(j, 1);
-                      turnMooseAround(ob1[0]);
-                    }
-                  }
-                }
+            if (ob2[1] !== "moose") {
+              ob2[0].speed = 0;
+              ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                   explosionCoords, 8, 0);
+              explodeCars.push(ob2);
+              allObstacles.splice(j-1, 1);
+            } else {
+              if (ob2[0].x < ob1[0].x) {
+                ob2[0].state = "left";
+                ob2[0].x -= 10;
+              } else {
+                ob2[0].state = "right";
+                ob2[0].x += 10;
               }
+            }
+          } else if (ob2[1] !== "moose") {
+            ob2[0].speed = 0;
+            ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                explosionCoords, 8, 0);
+            explodeCars.push(ob2);
+            allObstacles.splice(j, 1);
+              
+            if (ob1[0].x < ob2[0].x) {
+              ob1[0].state = "left";
+              ob1[0].x -= 10;
+            } else {
+              ob1[0].state = "right";
+              ob1[0].x += 10;
             }
           }
         }
@@ -550,7 +551,7 @@ function Line(x, y) {
    */
   this.update = function(delta) {
     if (this.livey >= 600) {
-      this.livey = -100;
+      this.livey -= 700;
     }
 
 	//update coordinates
@@ -668,15 +669,6 @@ function drawDifficulty() {
   ctx.fillText("Difficulty: " + difficulty, 260, canvas.height - 30);
 }
 
-
-
-/* drawSpeed()
- *
- * Draws text indicating speed to the user
- */
-function drawSpeed(){
-}
-
 /* drawHandcuffs()
  *
  * Draws handcuffs after a car is caught
@@ -695,17 +687,15 @@ function drawHandcuffs(x, y){
  */
 function updateHandcuffs(){
   var i;
- for(i=handcuffs.length -1; i>=0; i--){
-   var cuf = handcuffs[i];
-   if(cuf.speed == 20){
-     handcuffs.splice(i,1);
-   }
-   else{
-     draw(handcuffs[i]);
-     cuf.speed++
-
-     }
- }
+  for(i=handcuffs.length -1; i>=0; i--){
+    var cuf = handcuffs[i];
+    if(cuf.speed == 20){
+      handcuffs.splice(i,1);
+    } else {
+      draw(handcuffs[i]);
+      cuf.speed++;
+    }
+  }
 }
 
 /* runMainMenu()
@@ -826,11 +816,10 @@ function redrawAll() {
   }
   updateExplodeCars();
   updateHandcuffs();
+  trees.draw();
   drawSirenBar();
   score.draw();
-  trees.draw();
   drawDifficulty();
-  drawSpeed();
 }
 
 //***********************************
@@ -919,9 +908,12 @@ function drawEnd() {
 }
 
 function continueGame() {
-  if(frame % (100 - (2 * delta * difficulty)) == 0) {
-    spawnMoose();
+  if(frame % (90 - (2 * delta * difficulty)) == 0) {
+    //spawnMoose();
     spawnCar();
+  }
+  if (frame % (130 - (2 * delta * difficulty)) == 0) {
+    spawnMoose();
   }
   updateStationary();
   roadLines.update();
@@ -932,7 +924,7 @@ function continueGame() {
   checkObstacleCollisions();
   checkDrunkCollisions(policeCar);
 
-  if (gameCounter <= 3000) {
+  if (gameCounter <= 4500) {
     gameCounter++;
   }
 
