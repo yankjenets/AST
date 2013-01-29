@@ -42,6 +42,7 @@ var score = new Score(0);
 var allObstacles = [];
 var mooses = [];
 var enemyCars = [];
+var handcuffs = [];
 var roadLines = new RoadLines(6);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
                            policeCoords, 1, 3);
@@ -95,7 +96,7 @@ function spawnMoose() {
 };
 
 function spawnCar() {
-  var x = randomInt(0, 400);
+  var x = randomInt(50, 350);
   var y = -100;
   var car;
   switch (randomInt(0, 4)) {
@@ -232,7 +233,7 @@ function updatePoliceCar() {
 
 //Returns true if 2 sprites intersect
 function clboxIntersect(sprite1, sprite2, offset) {
-  console.log(offset);
+  //console.log(offset);
   if(offset > 0) {
   }
   var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
@@ -268,7 +269,10 @@ function drawExplosion(sprite, exp_sprite){
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
 
-//Runs through allObstacles to check if they hit police car
+/* checkCollisions(sprite)
+ *
+ * Runs through allObstacles to check if they hit police car
+ */
 function checkCollisions(sprite){
   var i;
   for(i = 0; i < allObstacles.length; i++) {
@@ -279,6 +283,11 @@ function checkCollisions(sprite){
   return false;
 }
 
+/* checkDrunkCollision(sprite)
+ *
+ * loops through all "drunk" cars and sees if there is a collision with
+ * the given sprite
+ */
 function checkDrunkCollisions(sprite){
   var i;
   for(i = allObstacles.length - 1; i >= 0; i--) {
@@ -286,8 +295,10 @@ function checkDrunkCollisions(sprite){
     if((policeCar.state == "on") &&
        (allObstacles[i][1] == "drunk-car") &&
        (clboxIntersect(sprite, ob, ob.coords[ob.state][ob.frame].h))) {
+      drawHandcuffs(allObstacles[i][0].x, allObstacles[i][0].y);
+      console.log("Cuffs.x = " + allObstacles[i][0].x);
       allObstacles.splice(i, 1);
-      score.score += 100;
+      score.score += 1000*delta;
     }
   }
 }
@@ -485,7 +496,10 @@ function Score(initScore) {
 
 ////////////////////////////////////
 
-
+/* drawSprite
+ *
+ * draws sprite with the objects cords and dimensions
+ */
 function draw(sprite) {
   var scale = 1;
   if(arguments.length > 1) {
@@ -497,6 +511,10 @@ function draw(sprite) {
                 sprite.x, sprite.y, coords.w * scale, coords.h * scale);
 }
 
+/* drawSirenBar()
+ *
+ * draws the bar on bottom 
+ */
 function drawSirenBar() {
   ctx.fillStyle = "white";
   ctx.fillRect(sirenBar.x, sirenBar.y, sirenBar.max, sirenBar.h);
@@ -522,6 +540,38 @@ function drawRoad() {
  * Draws text indicating speed to the user
  */
 function drawSpeed(){
+}
+
+/* drawHandcuffs()
+ *
+ * Draws handcuffs after a car is caught
+ */
+function drawHandcuffs(x, y){
+  var new_x = Math.round(x);
+  var new_y = Math.round(y);
+  var cuffs = new Sprite("sprites/handcuffs.png", "on", 0, new_x, new_y, cuffCords, 1, 0);
+  draw(cuffs);
+  handcuffs.push(cuffs);
+  console.log("handcuffs="+handcuffs[0].x);
+}
+
+/* updateHandcuffs()
+ *
+ * updates all cuffs, takes out old ones
+ */
+function updateHandcuffs(){
+  var i;
+ for(i=handcuffs.length -1; i>=0; i--){
+   var cuf = handcuffs[i];
+   if(cuf.speed == 20){
+     handcuffs.splice(i,1);
+   }
+   else{
+     draw(handcuffs[i]);
+     cuf.speed++
+     
+     }
+ }
 }
 
 /* runMainMenu()
@@ -578,6 +628,7 @@ function redrawAll() {
   for(i = 0; i < allObstacles.length; i++) {
     draw(allObstacles[i][0]);
   }
+  updateHandcuffs();
   drawSirenBar();
   score.draw();
   drawSpeed();
@@ -629,10 +680,10 @@ function resetGame(){
 function runEnd() {
   drawEnd();
 
-  if(keys[spaceCode]){
+  if(keys[hCode]){
     resetGame();
     gameState = MAIN_MENU;
-    keys[spaceCode] = 0;
+    keys[hCode] = 0;
   } else if(keys[rCode]){
     resetGame();
     gameState = IN_GAME;
@@ -670,7 +721,7 @@ function drawEnd() {
   ctx.fillText("HighScore: "+ highscore, 200, 280);
 
   ctx.font="20px sans-serif";
-  ctx.fillText("Press space to go to the main menu", 200, 330);
+  ctx.fillText("Press H to go to the main menu", 200, 330);
   ctx.fillText("Press R to restart", 200, 350);
 }
 
@@ -689,7 +740,7 @@ function continueGame() {
 
   if (gameCounter <= 3000) {
     gameCounter++;
-    console.log(gameCounter);
+   // console.log(gameCounter);
   }
 
   delta = Math.floor(gameCounter / 300) + 1;
