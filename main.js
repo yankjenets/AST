@@ -802,9 +802,9 @@ function redrawAll() {
   }
   updateExplodeCars();
   updateHandcuffs();
+  trees.draw();
   drawSirenBar();
   score.draw();
-  trees.draw();
   drawDifficulty();
   drawSpeed();
 }
@@ -903,7 +903,7 @@ function drawEnd() {
 }
 
 function continueGame() {
-  if(frame % (100 - (2 * delta * difficulty)) == 0) {
+  if(frame % (90 - (2 * delta * difficulty)) == 0) {
     //spawnMoose();
     spawnCar();
   }
@@ -919,7 +919,7 @@ function continueGame() {
   checkObstacleCollisions();
   checkDrunkCollisions(policeCar);
 
-  if (gameCounter <= 3000) {
+  if (gameCounter <= 4500) {
     gameCounter++;
   }
 
