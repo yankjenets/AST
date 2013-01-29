@@ -789,6 +789,28 @@ function drawBonusScores() {
   }
 }
 
+function drawEndexplosion(){
+  if(explosion.state == "on"){
+    if(explosion.frame == 6){
+      explosion.state = "off"
+      explosion.frame = 0;
+    }
+    else if(explosion.speed%10 == 9){
+      explosion.frame = (explosion.frame + 1) % 8;
+      explosion.speed = 0;
+    }
+    else {
+      drawExplosion(policeCar, explosion);
+      explosion.speed++;
+    }
+  }
+  else{
+    drawExplosion(policeCar, explosion);
+    explosion.frame = Math.floor(explosion.speed);
+    explosion.speed = (explosion.speed + .1) % 3;
+  }
+}
+
 function redrawAll() {
   var i;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -873,16 +895,8 @@ function runEnd() {
 function drawEnd() {
   redrawAll();
 
-  if(explosion.frame < 7){
-    if(explosion.speed%10 == 9){
-      explosion.frame = (explosion.frame + 1) % 8;
-      explosion.speed = 0;
-    }
-    else {
-      drawExplosion(policeCar, explosion);
-      explosion.speed++;
-    }
-  }
+  drawEndexplosion();
+
   ctx.fillStyle = "blue";
   ctx.font="60px sans-serif";
   ctx.textAlign = "center";

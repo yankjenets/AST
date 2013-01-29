@@ -37,6 +37,7 @@ policeCoords["on"][7] = {"x":3, "y":896, "w":36, "h":78};
 
 var explosionCoords = new Object();
 explosionCoords["on"] = new Object();
+explosionCoords["off"] = new Object();
 
 explosionCoords["on"][0] = {"x":3, "y":29, "w":47, "h":40};
 explosionCoords["on"][1] = {"x":66, "y":33, "w":44, "h":36};
@@ -46,6 +47,10 @@ explosionCoords["on"][4] = {"x":266, "y":6, "w":47, "h":63};
 explosionCoords["on"][5] = {"x":322, "y":7, "w":48, "h":62};
 explosionCoords["on"][6] = {"x":383, "y":6, "w":48, "h":63};
 explosionCoords["on"][7] = {"x":445, "y":6, "w":41, "h":55};
+
+explosionCoords["off"][0] = {"x":513, "y":2, "w":40, "h":64};
+explosionCoords["off"][1] = {"x":576, "y":0, "w":37, "h":66};
+explosionCoords["off"][2] = {"x":641, "y":1, "w":31, "h":65};
 
 var blueCarCoords = new Object();
 blueCarCoords["on"] = new Object();
