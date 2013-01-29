@@ -375,15 +375,28 @@ function checkObstacleCollisions() {
               explodeCars.push(ob2);
               allObstacles.splice(j-1, 1);
             } else {
-              turnMooseAround(ob2[0]);
+              if (ob2[0].x < ob1[0].x) {
+                ob2[0].state = "left";
+                ob2[0].x -= 10;
+              } else {
+                ob2[0].state = "right";
+                ob2[0].x += 10;
+              }
             }
           } else if (ob2[1] !== "moose") {
-              ob2[0].speed = 0;
-              ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
-                                   explosionCoords, 8, 0);
-              explodeCars.push(ob2);
-              allObstacles.splice(j, 1);
-              turnMooseAround(ob1[0]);
+            ob2[0].speed = 0;
+            ob2[2] = new Sprite("sprites/explosion.png", "on", 0, 0, 0,
+                                explosionCoords, 8, 0);
+            explodeCars.push(ob2);
+            allObstacles.splice(j, 1);
+              
+            if (ob1[0].x < ob2[0].x) {
+              ob1[0].state = "left";
+              ob1[0].x -= 10;
+            } else {
+              ob1[0].state = "right";
+              ob1[0].x += 10;
+            }
           }
         }
       }
@@ -535,7 +548,7 @@ function Line(x, y) {
    */
   this.update = function(delta) {
     if (this.livey >= 600) {
-      this.livey = -100;
+      this.livey -= 700;
     }
 
 	//update coordinates
