@@ -10,6 +10,14 @@ var dCode = 68;
 var hCode = 72;
 var rCode = 82;
 var spaceCode = 32;
+var oneCode = 49;
+var twoCode = 50;
+var threeCode = 51;
+var fourCode = 52;
+var numpadOneCode = 97;
+var numpadTwoCode = 98;
+var numpadThreeCode = 99;
+var numpadFourCode = 100;
 
 //Timing variables
 var intervalId;
@@ -21,6 +29,10 @@ var gameCounter = 0;
 
 //Controls how fast the game is going
 var delta = 1;
+
+//1 for easy, 2 for medium, 3 for hard, 4 for very hard
+var difficulty = 1;
+var MAX_DIFFICULTY = 4;
 
 //Game state constants
 var MAIN_MENU = 1;
@@ -42,6 +54,7 @@ var score = new Score(0);
 var allObstacles = [];
 var mooses = [];
 var enemyCars = [];
+var bonusScores = [];
 var roadLines = new RoadLines(6);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
                            policeCoords, 1, 3);
@@ -95,21 +108,21 @@ function spawnMoose() {
 };
 
 function spawnCar() {
-  var x = randomInt(0, 400);
+  var x = randomInt(30, 320);
   var y = -100;
   var car;
-  switch (randomInt(0, 4)) {
+  switch (randomInt(0, difficulty)) {
     case 0:
-      car = new Sprite("sprites/blue_car.png", "on", 0, x, y,
-                       blueCarCoords, 1, 3);
+      car = new Sprite("sprites/truck.png", "on", 0, x, y,
+                       truckCoords, 1, 1);
       break;
     case 1:
       car = new Sprite("sprites/grey_car.png", "on", 0, x, y,
                        greyCarCoords, 1, 2);
       break;
     case 2:
-      car = new Sprite("sprites/truck.png", "on", 0, x, y,
-                       truckCoords, 1, 1);
+      car = new Sprite("sprites/blue_car.png", "on", 0, x, y,
+                       blueCarCoords, 1, 3);
       break;
     default:
       car = new Sprite("sprites/yellow_car.png", "on", 0, x, y,
@@ -147,8 +160,14 @@ function updateObstacles() {
   for(i = allObstacles.length - 1; i >= 0; i--) {
     var ob = allObstacles[i];
     if(ob[0].x < -100 ||
-       ob[0].x > canvas.width + 100 ||
-       ob[0].y > canvas.height + 100) {
+       ob[0].x > canvas.width + 100) {
+      allObstacles.splice(i, 1);
+      continue;
+    }
+    if(ob[0].y > canvas.height &&
+       ob[1] == "drunk-car") {
+      bonusScores.push([ob[0].x, canvas.height - 60, 100, -1000]);
+      score.score -= 1000;
       allObstacles.splice(i, 1);
       continue;
     }
@@ -232,9 +251,6 @@ function updatePoliceCar() {
 
 //Returns true if 2 sprites intersect
 function clboxIntersect(sprite1, sprite2, offset) {
-  console.log(offset);
-  if(offset > 0) {
-  }
   var coords1 = sprite1.coords[sprite1.state][sprite1.frame];
   var coords2 = sprite2.coords[sprite2.state][sprite2.frame];
   var sp1_right = sprite1.x + coords1.w;
@@ -256,14 +272,10 @@ function drawClbox(box){
 
 //Explosion drawn on car if it hits any obstacles
 function drawExplosion(sprite, exp_sprite){
-  //exp_sprite.x = Math.floor((sprite.x+sprite.coords.h)/2);
-  //exp_sprite.y = Math.floor((sprite.y+sprite.coords.h)/2);
   exp_sprite.x = sprite.x;
   exp_sprite.y = sprite.y;
 
   var coords = exp_sprite.coords[exp_sprite.state][exp_sprite.frame];
-  //console.log("Exp_coords.x"+coords.x+" Exp_coords.y:"+coords.y);
-
   ctx.drawImage(exp_sprite.image, coords.x, coords.y, coords.w, coords.h,
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
@@ -286,8 +298,9 @@ function checkDrunkCollisions(sprite){
     if((policeCar.state == "on") &&
        (allObstacles[i][1] == "drunk-car") &&
        (clboxIntersect(sprite, ob, ob.coords[ob.state][ob.frame].h))) {
+      bonusScores.push([ob.x, ob.y, 100, "+" + difficulty * 500]);
       allObstacles.splice(i, 1);
-      score.score += 100;
+      score.score += difficulty * 500;
     }
   }
 }
@@ -299,22 +312,22 @@ function checkDrunkCollisions(sprite){
 function checkMooseCollisions() {
   var ob1;
   var ob2;
-  
+
   for (var i = 0; i < allObstacles.length; i++) {
     if (allObstacles[i][1] === "moose") {
       ob1 = allObstacles[i][0];
-  
+
       for (var j = i+1; j < allObstacles.length; j++) {
         if (allObstacles[j][1] === "moose") {
           ob2 = allObstacles[j][0];
-        
+
           if (clboxIntersect(ob1, ob2, 0)) {
             if (ob1.state !== ob2.state) {
               turnMooseAround(ob1);
             }
             turnMooseAround(ob2);
           }
-        }  
+        }
       }
     }
   }
@@ -325,7 +338,7 @@ function checkMooseCollisions() {
  * Changes the direction of ob and moves it changeDis to avoid another collision
  */
 function turnMooseAround(ob) {
-  var changeDis = 10;
+  var changeDis = 50;
 
   if (ob.state === "up") {
     ob.state = "down";
@@ -470,7 +483,7 @@ function Score(initScore) {
    * updates score by adding delta to it
    */
   this.update = function() {
-    this.score += delta;
+    this.score += difficulty * delta;
   }
 
   /* draw()
@@ -519,6 +532,16 @@ function drawRoad() {
   ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
 }
 
+function drawDifficulty() {
+  ctx.fillStyle = "red";
+  ctx.font = "bold 20px Ariel";
+  ctx.textAlign = "start";
+
+  ctx.fillText("Difficulty: " + difficulty, 260, canvas.height - 30);
+}
+
+
+
 /* drawSpeed()
  *
  * Draws text indicating speed to the user
@@ -533,6 +556,22 @@ function drawSpeed(){
 function runMainMenu() {
   drawMainMenu();
 
+  if(keys[oneCode] || keys[numpadOneCode]) {
+    difficulty = 1;
+    drawDifficulty();
+  }
+  if(keys[twoCode] || keys[numpadTwoCode]) {
+    difficulty = 2;
+    drawDifficulty();
+  }
+  if(keys[threeCode] || keys[numpadThreeCode]) {
+    difficulty = 3;
+    drawDifficulty();
+  }
+  if(keys[fourCode] || keys[numpadFourCode]) {
+    difficulty = 4;
+    drawDifficulty();
+  }
   if(keys[spaceCode]) {
     gameState = IN_GAME;
     keys[spaceCode] = 0;
@@ -550,6 +589,7 @@ function drawMainMenu() {
   var mainImage = new Image();
   mainImage.src = "sprites/AST_menu.png";
   ctx.drawImage(mainImage, 0, 0);
+  drawDifficulty();
 }
 
 /* runInstructions()
@@ -571,6 +611,25 @@ function drawInstructions() {
   ctx.drawImage(main_img, 0, 0);
 }
 
+function drawBonusScores() {
+  var i;
+  ctx.font = "bold 20px Ariel";
+  ctx.textAlign = "start";
+  for(i = bonusScores.length - 1; i >= 0; i--) {
+    if(bonusScores[i][2] > 0) {
+      if(bonusScores[i][3] > 0) {
+        ctx.fillStyle = "green";
+      } else {
+        ctx.fillStyle = "red";
+      }
+      ctx.fillText(bonusScores[i][3], bonusScores[i][0], bonusScores[i][1]);
+      bonusScores[i][2] -= 1;
+    } else {
+      bonusScores.splice(i, 1);
+    }
+  }
+}
+
 function redrawAll() {
   var i;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -580,8 +639,10 @@ function redrawAll() {
   for(i = 0; i < allObstacles.length; i++) {
     draw(allObstacles[i][0]);
   }
+  drawBonusScores();
   drawSirenBar();
   score.draw();
+  drawDifficulty();
   drawSpeed();
 }
 
@@ -654,7 +715,6 @@ function drawEnd() {
     else {
       drawExplosion(policeCar, explosion);
       explosion.speed++;
-      //console.log("ExplosionState:"+Explosion_state);
     }
   }
   ctx.fillStyle = "blue";
@@ -667,7 +727,7 @@ function drawEnd() {
     ctx.font="40px sans-serif";
     ctx.fillText("New HighScore!!!!", 200, 240);
   }
-  
+
   ctx.font="30px sans-serif";
   ctx.fillText("HighScore: "+ highscore, 200, 280);
 
@@ -677,7 +737,7 @@ function drawEnd() {
 }
 
 function continueGame() {
-  if(frame % (100 - (5 * delta)) == 0) {
+  if(frame % (100 - (2 * delta * difficulty)) == 0) {
     spawnMoose();
     spawnCar();
   }
@@ -691,19 +751,16 @@ function continueGame() {
 
   if (gameCounter <= 3000) {
     gameCounter++;
-    console.log(gameCounter);
   }
 
   delta = Math.floor(gameCounter / 300) + 1;
 
   redrawAll();
   frame++;
-  //console.log("Collisions:"+checkCollisions(policeCar));
   if (checkCollisions(policeCar)) {
     gameState = GAME_OVER;
     keys[spaceCode] = 0;
   }
-  //console.log("GameState:"+gameState);
 }
 
 function onKeyDown(event) {
