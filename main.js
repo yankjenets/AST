@@ -33,6 +33,7 @@ var delta = 1;
 //1 for easy, 2 for medium, 3 for hard, 4 for very hard
 var difficulty = 1;
 var MAX_DIFFICULTY = 4;
+var multiplier = 0;
 
 //Game state constants
 var MAIN_MENU = 1;
@@ -55,6 +56,7 @@ var allObstacles = [];
 var mooses = [];
 var enemyCars = [];
 var bonusScores = [];
+var handcuffs = [];
 var roadLines = new RoadLines(6);
 var policeCar = new Sprite("sprites/police_car.png", "off", 0, 175, 200,
                            policeCoords, 1, 3);
@@ -108,7 +110,7 @@ function spawnMoose() {
 };
 
 function spawnCar() {
-  var x = randomInt(30, 320);
+  var x = randomInt(50, 350);
   var y = -100;
   var car;
   switch (randomInt(0, difficulty)) {
@@ -167,6 +169,7 @@ function updateObstacles() {
     if(ob[0].y > canvas.height &&
        ob[1] == "drunk-car") {
       bonusScores.push([ob[0].x, canvas.height - 60, 100, -1000]);
+      multiplier = 0;
       score.score -= 1000;
       allObstacles.splice(i, 1);
       continue;
@@ -280,7 +283,10 @@ function drawExplosion(sprite, exp_sprite){
                 exp_sprite.x, exp_sprite.y, coords.w, coords.h);
 }
 
-//Runs through allObstacles to check if they hit police car
+/* checkCollisions(sprite)
+ *
+ * Runs through allObstacles to check if they hit police car
+ */
 function checkCollisions(sprite){
   var i;
   for(i = 0; i < allObstacles.length; i++) {
@@ -291,6 +297,11 @@ function checkCollisions(sprite){
   return false;
 }
 
+/* checkDrunkCollision(sprite)
+ *
+ * loops through all "drunk" cars and sees if there is a collision with
+ * the given sprite
+ */
 function checkDrunkCollisions(sprite){
   var i;
   for(i = allObstacles.length - 1; i >= 0; i--) {
@@ -298,9 +309,13 @@ function checkDrunkCollisions(sprite){
     if((policeCar.state == "on") &&
        (allObstacles[i][1] == "drunk-car") &&
        (clboxIntersect(sprite, ob, ob.coords[ob.state][ob.frame].h))) {
-      bonusScores.push([ob.x, ob.y, 100, "+" + difficulty * 500]);
+      multiplier += 1;
+      bonusScores.push([ob.x, ob.y, 100, "+" + difficulty * 500 * multiplier]);
+      bonusScores.push([ob.x, ob.y - 20, 100, "x" + multiplier]);
       allObstacles.splice(i, 1);
-      score.score += difficulty * 500;
+      score.score += difficulty * 500 * multiplier;
+      drawHandcuffs(allObstacles[i][0].x, allObstacles[i][0].y);
+      console.log("Cuffs.x = " + allObstacles[i][0].x);
     }
   }
 }
@@ -500,7 +515,10 @@ function Score(initScore) {
 
 ////////////////////////////////////
 
-
+/* drawSprite
+ *
+ * draws sprite with the objects cords and dimensions
+ */
 function draw(sprite) {
   var scale = 1;
   if(arguments.length > 1) {
@@ -512,6 +530,10 @@ function draw(sprite) {
                 sprite.x, sprite.y, coords.w * scale, coords.h * scale);
 }
 
+/* drawSirenBar()
+ *
+ * draws the bar on bottom
+ */
 function drawSirenBar() {
   ctx.fillStyle = "white";
   ctx.fillRect(sirenBar.x, sirenBar.y, sirenBar.max, sirenBar.h);
@@ -547,6 +569,38 @@ function drawDifficulty() {
  * Draws text indicating speed to the user
  */
 function drawSpeed(){
+}
+
+/* drawHandcuffs()
+ *
+ * Draws handcuffs after a car is caught
+ */
+function drawHandcuffs(x, y){
+  var new_x = Math.round(x);
+  var new_y = Math.round(y);
+  var cuffs = new Sprite("sprites/handcuffs.png", "on", 0, new_x, new_y, cuffCords, 1, 0);
+  draw(cuffs);
+  handcuffs.push(cuffs);
+  console.log("handcuffs="+handcuffs[0].x);
+}
+
+/* updateHandcuffs()
+ *
+ * updates all cuffs, takes out old ones
+ */
+function updateHandcuffs(){
+  var i;
+ for(i=handcuffs.length -1; i>=0; i--){
+   var cuf = handcuffs[i];
+   if(cuf.speed == 20){
+     handcuffs.splice(i,1);
+   }
+   else{
+     draw(handcuffs[i]);
+     cuf.speed++
+
+     }
+ }
 }
 
 /* runMainMenu()
@@ -640,6 +694,7 @@ function redrawAll() {
     draw(allObstacles[i][0]);
   }
   drawBonusScores();
+  updateHandcuffs();
   drawSirenBar();
   score.draw();
   drawDifficulty();
@@ -692,10 +747,10 @@ function resetGame(){
 function runEnd() {
   drawEnd();
 
-  if(keys[spaceCode]){
+  if(keys[hCode]){
     resetGame();
     gameState = MAIN_MENU;
-    keys[spaceCode] = 0;
+    keys[hCode] = 0;
   } else if(keys[rCode]){
     resetGame();
     gameState = IN_GAME;
@@ -732,7 +787,7 @@ function drawEnd() {
   ctx.fillText("HighScore: "+ highscore, 200, 280);
 
   ctx.font="20px sans-serif";
-  ctx.fillText("Press space to go to the main menu", 200, 330);
+  ctx.fillText("Press H to go to the main menu", 200, 330);
   ctx.fillText("Press R to restart", 200, 350);
 }
 

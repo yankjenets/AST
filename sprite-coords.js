@@ -60,3 +60,7 @@ greyCarCoords["on"] = new Object();
 greyCarCoords["on"][0] = {"x":0, "y":0, "w":42, "h":78};
 
 var yellowCarCoords = greyCarCoords;
+
+var cuffCords = new Object();
+cuffCords["on"] = new Object();
+cuffCords["on"][0] = {"x":0, "y":0, "w":62, "h":37};
