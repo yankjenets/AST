@@ -801,6 +801,12 @@ function drawEndexplosion(){
   }
 }
 
+function resetExplosion() {
+  explosion.state = "on";
+  explosion.speed = 0;
+  explosion.frame = 0;
+}
+
 function redrawAll() {
   var i;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -865,6 +871,7 @@ function resetGame(){
   score.reset();
   sirenBar.percent = 1;
   multiplier = 0;
+  resetExplosion();
 }
 
 function runEnd() {
