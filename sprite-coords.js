@@ -1,3 +1,13 @@
+/* Alaskan State Troopers - the Game
+ *
+ * Based off of the hit National Geographic television show.
+ *
+ * Designed and developed by:
+ * Daniel Deutsch - ddeutsch
+ * Tyler Healy - thealy
+ * Michael Hankowsky - mhankows
+ */
+ 
 var mooseCoords = new Object();
 mooseCoords["down"] = new Object();
 mooseCoords["right"] = new Object();
