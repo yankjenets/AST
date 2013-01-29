@@ -280,13 +280,6 @@ function clboxIntersect(sprite1, sprite2, offset) {
           sprite1.y > sp2_bottom || sp1_bottom < (sprite2.y + offset));
 }
 
-//Just for debugging
-function drawClbox(box){
-  var coords = box.coords[box.state][box.frame];
-  ctx.strokestyle = "FF0000";
-  ctx.strokeRect(box.x, box.y, box.coords.w, box.coords.h);
-}
-
 //Explosion drawn on car if it hits any obstacles
 function drawExplosion(sprite, exp_sprite){
   exp_sprite.x = sprite.x;
@@ -666,15 +659,6 @@ function drawDifficulty() {
   ctx.fillText("Difficulty: " + difficulty, 260, canvas.height - 30);
 }
 
-
-
-/* drawSpeed()
- *
- * Draws text indicating speed to the user
- */
-function drawSpeed(){
-}
-
 /* drawHandcuffs()
  *
  * Draws handcuffs after a car is caught
@@ -693,17 +677,15 @@ function drawHandcuffs(x, y){
  */
 function updateHandcuffs(){
   var i;
- for(i=handcuffs.length -1; i>=0; i--){
-   var cuf = handcuffs[i];
-   if(cuf.speed == 20){
-     handcuffs.splice(i,1);
-   }
-   else{
-     draw(handcuffs[i]);
-     cuf.speed++
-
-     }
- }
+  for(i=handcuffs.length -1; i>=0; i--){
+    var cuf = handcuffs[i];
+    if(cuf.speed == 20){
+      handcuffs.splice(i,1);
+    } else {
+      draw(handcuffs[i]);
+      cuf.speed++;
+    }
+  }
 }
 
 /* runMainMenu()
@@ -806,7 +788,6 @@ function redrawAll() {
   drawSirenBar();
   score.draw();
   drawDifficulty();
-  drawSpeed();
 }
 
 //***********************************
