@@ -926,7 +926,7 @@ function continueGame() {
     spawnCar();
   }
   if (frame % (130 - (2 * delta * difficulty)) == 0) {
-    spawnMoose();
+    //spawnMoose();
   }
   updateStationary();
   roadLines.update();
