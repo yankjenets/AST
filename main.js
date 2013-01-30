@@ -263,7 +263,7 @@ function updatePoliceCar() {
 function updateExplodeCars() {
   for(var i = 0; i < explodeCars.length; i++) {
     explodeCars[i][0].speed++;
-    
+
     if(explodeCars[i][0].speed > 79) {
       explodeCars[i][2].state = "off";
       explodeCars[i][2].frame = Math.floor(((explodeCars[i][0].speed - 80) % 30) / 10);
@@ -271,7 +271,7 @@ function updateExplodeCars() {
       explodeCars[i][2].frame = Math.floor(explodeCars[i][0].speed / 10);
     }
     drawExplosion(explodeCars[i][0], explodeCars[i][2]);
-    
+
     if (explodeCars[i][0].y > 600) {
       explodeCars.splice(i, 1);
     }
@@ -398,7 +398,7 @@ function checkObstacleCollisions() {
                                 explosionCoords, 8, 0);
             explodeCars.push(ob2);
             allObstacles.splice(j, 1);
-              
+
             if (ob1[0].x < ob2[0].x) {
               ob1[0].state = "left";
               ob1[0].x -= 10;
@@ -667,8 +667,8 @@ function drawRoad() {
   ctx.fillRect(25, 0, canvas.width - 50, canvas.height)
 }
 
-function drawDifficulty() {
-  ctx.fillStyle = "red";
+function drawDifficulty(color) {
+  ctx.fillStyle = color;
   ctx.font = "bold 20px Ariel";
   ctx.textAlign = "start";
 
@@ -713,19 +713,19 @@ function runMainMenu() {
 
   if(keys[oneCode] || keys[numpadOneCode]) {
     difficulty = 1;
-    drawDifficulty();
+    drawDifficulty("white");
   }
   if(keys[twoCode] || keys[numpadTwoCode]) {
     difficulty = 2;
-    drawDifficulty();
+    drawDifficulty("white");
   }
   if(keys[threeCode] || keys[numpadThreeCode]) {
     difficulty = 3;
-    drawDifficulty();
+    drawDifficulty("white");
   }
   if(keys[fourCode] || keys[numpadFourCode]) {
     difficulty = 4;
-    drawDifficulty();
+    drawDifficulty("white");
   }
   if(keys[spaceCode]) {
     gameState = IN_GAME;
@@ -744,7 +744,7 @@ function drawMainMenu() {
   var mainImage = new Image();
   mainImage.src = "sprites/AST_menu.png";
   ctx.drawImage(mainImage, 0, 0);
-  drawDifficulty();
+  drawDifficulty("white");
 }
 
 /* runInstructions()
@@ -831,7 +831,7 @@ function redrawAll() {
   trees.draw();
   drawSirenBar();
   score.draw();
-  drawDifficulty();
+  drawDifficulty("red");
 }
 
 //***********************************
